@@ -1,11 +1,18 @@
 <?php
-namespace App\Models;
+namespace app\Services;
 
 use App\Constants\TradeConstants;
-class MatchingEngineModel {
+use App\Models\AssetLedgerModel;
+use App\Models\Base;
+use App\Models\Exception;
+use App\Models\OrderModel;
+use App\Models\TradeModel;
+use App\Models\TradingPairModel;
+
+class MatchingEngineService {
     // 撮合订单
     public function matchOrders($pairId) {
-        $db = config("database");
+        $db = Base::instance()->get('DB');
         $orderModel = new OrderModel();
         $tradeModel = new TradeModel();
         $assetLedgerModel = new AssetLedgerModel();

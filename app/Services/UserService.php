@@ -7,8 +7,8 @@ use app\Models\UserModel;
 class UserService {
     protected $userModel;
 
-    public function __construct($db) {
-        $this->userModel = new UserModel($db);
+    public function __construct() {
+        $this->userModel = new UserModel();
     }
 
     public function createUser($data) {

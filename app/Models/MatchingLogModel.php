@@ -1,5 +1,5 @@
 <?php
-namespace App\Models;
+namespace app\Models;
 
 /**
  * 撮合引擎日志模型
@@ -7,7 +7,7 @@ namespace App\Models;
 class MatchingLogModel extends \DB\SQL\Mapper
 {
     public function __construct() {
-        parent::__construct(config('database'), 'matching_logs');
+        parent::__construct(Base::instance()->get('DB'), 'matching_logs');
     }
 
     // 根据日志ID查找日志记录

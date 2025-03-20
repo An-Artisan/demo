@@ -1,12 +1,12 @@
 <?php
-namespace App\Models;
+namespace app\Models;
 
 /**
  * 交易对模型
  */
 class TradingPairModel extends \DB\SQL\Mapper {
     public function __construct() {
-        parent::__construct(config('database'), 'trading_pairs');
+        parent::__construct(Base::instance()->get('DB'), 'trading_pairs');
     }
 
     // 根据交易对ID查找交易对

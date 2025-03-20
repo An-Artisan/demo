@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Models;
+namespace app\Models;
 
 use DB\SQL\Mapper;
 use lib\encryption\Encryption;
 
 class UserModel extends \DB\SQL\Mapper {
-    public function __construct($db) {
-        parent::__construct($db, 'users');
+    public function __construct() {
+        parent::__construct(Base::instance()->get('DB'), 'users');
     }
 
     // 创建用户

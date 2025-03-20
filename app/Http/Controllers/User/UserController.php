@@ -10,8 +10,7 @@ class UserController {
     protected $userService;
     use JsonResponseTrait;
     public function __construct() {
-        $db = Base::instance()->get('DB');
-        $this->userService = new UserService($db);
+        $this->userService = new UserService();
     }
 
     public function index($f3) {

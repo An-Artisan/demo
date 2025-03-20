@@ -1,12 +1,12 @@
 <?php
-namespace App\Models;
+namespace app\Models;
 
 /**
  * 资产流水模型
  */
 class AssetLedgerModel extends \DB\SQL\Mapper {
     public function __construct() {
-        parent::__construct(config('database'), 'asset_ledger');
+        parent::__construct(Base::instance()->get('DB'), 'asset_ledger');
     }
 
     // 根据流水ID查找流水记录

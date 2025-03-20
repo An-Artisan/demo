@@ -1,5 +1,5 @@
 <?php
-namespace App\Constants;
+namespace app\Constants;
 
 /**
  * 交易常量

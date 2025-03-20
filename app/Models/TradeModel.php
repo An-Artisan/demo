@@ -1,9 +1,9 @@
 <?php
-namespace App\Models;
+namespace app\Models;
 
 class TradeModel extends \DB\SQL\Mapper {
     public function __construct() {
-        parent::__construct(config('database'), 'trades');
+        parent::__construct(Base::instance()->get('DB'), 'trades');
     }
 
     // 根据交易ID查找交易记录

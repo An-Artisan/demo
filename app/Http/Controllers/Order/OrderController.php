@@ -1,22 +1,21 @@
 <?php
-namespace App\Http\Controllers\Order;
+namespace app\Http\Controllers\Order;
 
 use app\Http\Traits\JsonResponseTrait;
-use lib\config\Load;
-use App\Models\TradeModel;
-use App\Models\OrderModel;
-use App\Models\UserModel;
-use App\Models\TradingPairModel;
-use App\Models\MatchingEngineModel;
-use lib\TradeConstants;
+use app\Models\OrderModel;
+use app\Models\TradingPairModel;
+use app\Models\UserModel;
+use app\Services\MatchingEngineService;
 use lib\Base;
+use lib\TradeConstants;
+
 class OrderController {
     use JsonResponseTrait;
     // 用户提交订单
     public function placeOrder($f3) {
         $db = config("database");
         $orderModel = new OrderModel();
-        $matchingEngineModel = new MatchingEngineModel();
+        $matchingEngineModel = new MatchingEngineService();
 
         try {
             // 开启事务
