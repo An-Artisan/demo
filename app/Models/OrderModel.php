@@ -1,12 +1,12 @@
 <?php
-namespace App\Models;
+namespace app\Models;
 
 /**
  * 订单模型
  */
 class OrderModel extends \DB\SQL\Mapper {
     public function __construct() {
-        parent::__construct(Base::instance()->get('DB'), 'orders');
+        parent::__construct(config('database'), 'orders');
     }
 
     // 根据订单ID查找订单

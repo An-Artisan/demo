@@ -1,6 +1,6 @@
 <?php
 
-namespace lib\Models;
+namespace app\Models;
 
 use DB\SQL\Mapper;
 
