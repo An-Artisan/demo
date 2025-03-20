@@ -2,7 +2,9 @@
 
 namespace app\Services;
 
+use app\Exceptions\AppException;
 use app\Models\UserModel;
+use PDOException;
 
 class UserService {
     protected $userModel;
@@ -11,8 +13,17 @@ class UserService {
         $this->userModel = new UserModel();
     }
 
+    /**
+     * @throws AppException
+     */
     public function createUser($data) {
-        return $this->userModel->createUser($data);
+        try {
+            return $this->userModel->createUser($data);
+        } catch (AppException $e) {
+            throw $e;
+        } catch (PDOException|\Exception $e) {
+            throw new AppException($e->getMessage());
+        }
     }
 
     public function getUsers(): array

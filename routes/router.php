@@ -23,11 +23,7 @@ if ((float)PCRE_VERSION < 8.0) {
     trigger_error('PCRE version is out of date');
 }
 
-
-// 加载配置文件
-$f3->config('config.ini');
-
-// 绑定控制器方法 + 中间件（支持 Laravel 风格）
+// 绑定控制器方法 + 中间件（参考 Laravel 风格）
 $f3->route('GET /home/@id', function($f3, $params) {
     Middleware::run([
         AuthMiddleware::class,  // 认证中间件

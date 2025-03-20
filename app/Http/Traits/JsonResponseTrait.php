@@ -25,7 +25,7 @@ trait JsonResponseTrait {
     /**
      * 返回标准的错误 JSON 响应
      *
-     * @param int $code    错误代码（HTTP 状态码），例如 400, 404, 500 等。
+     * @param int $code    错误代码（业务 状态码），例如 10001, 10002, 10003 等。
      * @param string $message 错误消息，描述错误原因。
      * @param array $data    可选的数据内容，默认为空数组。
      */
@@ -35,7 +35,7 @@ trait JsonResponseTrait {
             "data"    => $data,     // 数据内容，可用于传递错误的相关数据
             "message" => $message   // 错误消息，描述失败原因
         ];
-        $this->sendJsonResponse($code, $response);
+        $this->sendJsonResponse(400, $response);
     }
 
     /**
