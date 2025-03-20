@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use app\Exceptions\AppException;
 use DB\SQL\Mapper;
 use lib\encryption\Encryption;
 
@@ -11,7 +12,17 @@ class UserModel extends \DB\SQL\Mapper {
     }
 
     // 创建用户
+
+    /**
+     * @throws AppException
+     */
     public function createUser($data) {
+
+        if (empty($data['username'])) {
+            // 抛出自定义的应用错误
+            throw new AppException('用户名不能为空', 10001);
+        }
+
         // 确保 balance 是 JSON 格式
         if (empty($data['balance'])) {
             $data['balance'] = json_encode([], JSON_UNESCAPED_UNICODE);
