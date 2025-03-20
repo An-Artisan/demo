@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Models;
+namespace App\Models;
 
 use DB\SQL\Mapper;
 
@@ -45,5 +45,24 @@ class UserModel extends \DB\SQL\Mapper {
             return true;
         }
         return false;
+    }
+
+    // 根据用户ID查找用户
+    public function findById($userId) {
+        $this->load(['user_id = ?', $userId]);
+        return $this->query;
+    }
+
+// 根据用户名查找用户
+    public function findByUsername($username) {
+        $this->load(['username = ?', $username]);
+        return $this->query;
+    }
+
+// 更新用户资产余额
+    public function updateBalance($userId, $balance) {
+        $this->load(['user_id = ?', $userId]);
+        $this->balance = json_encode($balance);
+        $this->save();
     }
 }

@@ -1,5 +1,5 @@
 <?php
-namespace app\Models;
+namespace App\Models;
 
 /**
  * 订单模型

@@ -1,5 +1,5 @@
 <?php
-namespace app\Models;
+namespace App\Models;
 
 /**
  * 交易对模型

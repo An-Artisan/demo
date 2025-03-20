@@ -1,5 +1,5 @@
 <?php
-namespace app\Models;
+namespace App\Models;
 
 /**
  * 资产流水模型
