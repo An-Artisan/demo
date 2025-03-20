@@ -38,4 +38,68 @@ class OrderModel extends \DB\SQL\Mapper {
         $this->status = $status;
         $this->save();
     }
+
+    // 查询用户当前委托（带分页）
+    public function findCurrentOrders($userId, $limit, $offset) {
+        return $this->find([
+            'user_id = ? AND status IN (?, ?) LIMIT ? OFFSET ?',
+            $userId,
+            TradeConstants::STATUS_PENDING,
+            TradeConstants::STATUS_PARTIAL,
+            $limit,
+            $offset
+        ]);
+    }
+
+    // 查询用户当前委托的总记录数
+    public function countCurrentOrders($userId) {
+        return $this->count([
+            'user_id = ? AND status IN (?, ?)',
+            $userId,
+            TradeConstants::STATUS_PENDING,
+            TradeConstants::STATUS_PARTIAL
+        ]);
+    }
+
+    // 查询用户历史委托（带分页和排序）
+    public function findHistoryOrders($userId, $limit, $offset, $sortField, $sortOrder) {
+        return $this->find([
+            'user_id = ? ORDER BY ? ? LIMIT ? OFFSET ?',
+            $userId,
+            $sortField,
+            $sortOrder,
+            $limit,
+            $offset
+        ]);
+    }
+
+    // 查询用户历史委托的总记录数
+    public function countHistoryOrders($userId) {
+        return $this->count([
+            'user_id = ?',
+            $userId
+        ]);
+    }
+
+    // 查询用户成交记录（带分页和排序）
+    public function findFilledOrders($userId, $limit, $offset, $sortField, $sortOrder) {
+        return $this->find([
+            'user_id = ? AND status = ? ORDER BY ? ? LIMIT ? OFFSET ?',
+            $userId,
+            TradeConstants::STATUS_FILLED,
+            $sortField,
+            $sortOrder,
+            $limit,
+            $offset
+        ]);
+    }
+
+    // 查询用户成交记录的总记录数
+    public function countFilledOrders($userId) {
+        return $this->count([
+            'user_id = ? AND status = ?',
+            $userId,
+            TradeConstants::STATUS_FILLED
+        ]);
+    }
 }

@@ -55,4 +55,153 @@ class OrderController {
             $this->error(500,'Failed to place order: ' . $e->getMessage());
         }
     }
+
+    // 获取用户当前委托列表（带分页）
+    public function getCurrentOrders($f3)
+    {
+        // 获取用户ID
+        $userId = $f3->get('PARAMS.user_id');
+
+        // 获取分页参数
+        $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
+        $limit  = $f3->get('GET.limit') ? (int)$f3->get('GET.limit') : 10;
+        $offset = ($page - 1) * $limit;
+
+        // 查询用户当前委托（未完全成交的订单）
+        $orderModel = new OrderModel();
+        $orders     = $orderModel->findCurrentOrders($userId, $limit, $offset);
+
+        // 查询总记录数
+        $total = $orderModel->countCurrentOrders($userId);
+
+        // 格式化返回数据
+        $result = [
+            'data'       => [],
+            'pagination' => [
+                'page'        => $page,
+                'limit'       => $limit,
+                'total'       => $total,
+                'total_pages' => ceil($total / $limit)
+            ]
+        ];
+        foreach ($orders as $order) {
+            $result['data'][] = [
+                'order_id'      => $order->order_id,
+                'pair_id'       => $order->pair_id,
+                'type'          => $order->type,
+                'side'          => $order->side,
+                'price'         => $order->price,
+                'amount'        => $order->amount,
+                'filled_amount' => $order->filled_amount,
+                'status'        => $order->status,
+                'created_at'    => $order->created_at
+            ];
+        }
+
+        // 返回结果
+        $this->success($result);
+    }
+
+    // 获取用户历史委托列表
+    public function getHistoryOrders($f3) {
+        // 获取用户ID
+        $userId = $f3->get('PARAMS.user_id');
+
+        // 获取分页参数
+        $page = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
+        $limit = $f3->get('GET.limit') ? (int)$f3->get('GET.limit') : 10;
+        $offset = ($page - 1) * $limit;
+
+        // 获取排序参数（默认按创建时间倒序）
+        $sortField = $f3->get('GET.sort_field') ?: 'created_at';
+        $sortOrder = $f3->get('GET.sort_order') ?: 'DESC';
+
+        // 查询用户历史委托
+        $orderModel = new OrderModel();
+        $orders = $orderModel->findHistoryOrders($userId, $limit, $offset, $sortField, $sortOrder);
+
+        // 查询总记录数
+        $total = $orderModel->countHistoryOrders($userId);
+
+        // 格式化返回数据
+        $result = [
+            'data' => [],
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'total' => $total,
+                'total_pages' => ceil($total / $limit)
+            ]
+        ];
+        foreach ($orders as $order) {
+            $result['data'][] = [
+                'order_id' => $order->order_id,
+                'pair_id' => $order->pair_id,
+                'type' => $order->type,
+                'side' => $order->side,
+                'price' => $order->price,
+                'amount' => $order->amount,
+                'filled_amount' => $order->filled_amount,
+                'status' => $order->status,
+                'created_at' => $order->created_at
+            ];
+        }
+
+        // 返回结果
+        $this->success($result);
+
+    }
+
+    // 获取用户成交记录列表
+    public function getFilledOrders($f3) {
+        // 获取用户ID
+        $userId = $f3->get('PARAMS.user_id');
+
+        // 获取分页参数
+        $page = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
+        $limit = $f3->get('GET.limit') ? (int)$f3->get('GET.limit') : 10;
+        $offset = ($page - 1) * $limit;
+
+        // 获取排序参数（默认按成交时间倒序）
+        $sortField = $f3->get('GET.sort_field') ?: 'updated_at';
+        $sortOrder = $f3->get('GET.sort_order') ?: 'DESC';
+
+        // 查询用户成交记录
+        $orderModel = new OrderModel();
+        $orders = $orderModel->findFilledOrders($userId, $limit, $offset, $sortField, $sortOrder);
+
+        // 查询总记录数
+        $total = $orderModel->countFilledOrders($userId);
+
+        // 格式化返回数据
+        $result = [
+            'data' => [],
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'total' => $total,
+                'total_pages' => ceil($total / $limit)
+            ]
+        ];
+        foreach ($orders as $order) {
+            $result['data'][] = [
+                'order_id' => $order->order_id,
+                'pair_id' => $order->pair_id,
+                'type' => $order->type,
+                'side' => $order->side,
+                'price' => $order->price,
+                'amount' => $order->amount,
+                'filled_amount' => $order->filled_amount,
+                'status' => $order->status,
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at
+            ];
+        }
+
+        // 返回结果
+        $this->success($result);
+    }
+
 }
+
+
