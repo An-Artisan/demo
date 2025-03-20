@@ -6,7 +6,7 @@ namespace app\Http\Controllers\Order;
 class ChartController {
     // 显示K线图页面
     public function showChart($f3) {
-        echo Template::instance()->render('app/views/chart.html');
+        echo Template::instance()->render('app/ui/order/chart.html');
     }
 
     // 提供K线图数据（JSON格式）
