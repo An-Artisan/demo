@@ -14,7 +14,6 @@ class Load
         if (empty(self::$config)) {
             // 加载 .env
             EnvLoader::load(__DIR__ . '/../.env');
-
             // 加载 config.php
             self::$config = require __DIR__ . '/../../config/config.php';
         }
@@ -26,7 +25,7 @@ class Load
      * @param mixed $default 默认值（可选）
      * @return mixed
      */
-    public static function get($key, $default = null)
+    public static function get(string $key, $default = null)
     {
         self::load();
 
