@@ -29,7 +29,7 @@ $f3->config('config.ini');
 $f3->route('GET /home/@id', function($f3, $params) {
     Middleware::run([
         AuthMiddleware::class,  // 认证中间件
-        ThrottleMiddleware::class  // 限流中间件
+//        ThrottleMiddleware::class  // 限流中间件
     ], 'app\Http\Controllers\User\TestController->Test',[$f3, $params]);
 });
 
