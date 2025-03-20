@@ -1,13 +1,13 @@
 <?php
 
-namespace lib\Http\Middleware;
+namespace app\Http\Middleware;
 
 abstract class Middleware {
     /**
      * 运行中间件并调用目标函数
      *
      * @param array $middlewares 需要执行的中间件类数组
-     * @param mixed $next 闭包或控制器方法字符串（如 'lib\Http\Controllers\User\UserController->Test'）
+     * @param mixed $next 闭包或控制器方法字符串（如 'app\Http\Controllers\User\UserController->Test'）
      * @param array $params 额外的参数（如 Fat-Free Framework 的 `$f3` 和 `$params`）
      */
     public static function run(array $middlewares, $next, array $params = []) {

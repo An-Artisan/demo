@@ -3,7 +3,7 @@
  * JSON 响应 Trait，为控制器和中间件提供统一的 JSON 输出方法。
  */
 
-namespace lib\Http\Traits;
+namespace app\Http\Traits;
 
 trait JsonResponseTrait {
 

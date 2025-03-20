@@ -1,6 +1,6 @@
 <?php
 
-namespace lib\Commands;
+namespace app\Commands;
 
 class TestCommands {
 

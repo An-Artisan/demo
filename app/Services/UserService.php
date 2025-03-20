@@ -1,5 +1,5 @@
 <?php
-namespace lib\Models;
+namespace app\Models;
 class UserController {
 
 }

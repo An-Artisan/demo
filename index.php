@@ -2,10 +2,10 @@
 
 if (file_exists('vendor/autoload.php')) {
     require_once('vendor/autoload.php');
-} elseif (!file_exists('lib/base.php')) {
+} elseif (!file_exists('app/base.php')) {
     die('fatfree-core not found. Run `git submodule init` and `git submodule update` or install via composer with `composer install`.');
 } else {
-    require('lib/base.php');
+    require('app/base.php');
 }
 
 // 引入路由
@@ -17,8 +17,8 @@ if ((float)PCRE_VERSION < 8.0) {
     trigger_error('PCRE version is out of date');
 }
 
-require_once __DIR__ . '/config/EnvLoader.php';
-require_once __DIR__ . '/config/Load.php';
+require_once __DIR__ . '/lib/config/EnvLoader.php';
+require_once __DIR__ . '/lib/config/Load.php';
 
 // **全局 helper 方法**
 require_once __DIR__ . '/helpers/helpers.php';

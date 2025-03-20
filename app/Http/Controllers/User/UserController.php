@@ -1,11 +1,10 @@
 <?php
 
-namespace lib\Http\Controllers\User;
+namespace app\Http\Controllers\User;
 
 
-use Config\EnvLoader;
-use Config\Load;
-use lib\Http\Traits\JsonResponseTrait;
+use app\Http\Traits\JsonResponseTrait;
+use lib\config\Load;
 
 class UserController
 {

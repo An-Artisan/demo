@@ -1,6 +1,6 @@
 <?php
 
-namespace Config;
+namespace lib\config;
 
 class Load
 {
@@ -16,7 +16,7 @@ class Load
             EnvLoader::load(__DIR__ . '/../.env');
 
             // 加载 config.php
-            self::$config = require __DIR__ . '/config.php';
+            self::$config = require __DIR__ . '/../../config/config.php';
         }
     }
 

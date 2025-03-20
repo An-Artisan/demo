@@ -1,8 +1,8 @@
 <?php
 
-namespace lib\Http\Middleware;
+namespace app\Http\Middleware;
 
-use lib\Http\Traits\JsonResponseTrait;
+use app\Http\Traits\JsonResponseTrait;
 
 class ThrottleMiddleware extends Middleware {
     use JsonResponseTrait;
