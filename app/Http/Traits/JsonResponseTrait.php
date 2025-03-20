@@ -13,7 +13,7 @@ trait JsonResponseTrait {
      * @param array $data    响应的数据内容，默认为空数组。
      * @param string $message 响应的消息，默认为空字符串。
      */
-    public function success(array $data = [], string $message = "") {
+    public function success(array $data = [], string $message = "success") {
         $response = [
             "code"    => 200,       // 成功状态码固定为 200
             "data"    => $data,     // 数据内容，可以是数组或对象

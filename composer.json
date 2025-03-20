@@ -5,6 +5,14 @@
 	"type": "project",
 	"license": "GPL-3.0",
 	"require": {
-		"bcosca/fatfree-core": "^3.8"
+		"bcosca/fatfree-core": "^3.8",
+		"ext-json": "*",
+      "ext-openssl": "*"
+    },
+	"autoload": {
+		"psr-4": {
+			"app\\": "app/",
+			"lib\\": "lib/"
+		}
 	}
 }
