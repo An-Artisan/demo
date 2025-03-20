@@ -1,5 +1,5 @@
 <?php
-namespace app\Models;
+namespace App\Models;
 
 class TradeModel extends \DB\SQL\Mapper {
     public function __construct() {
