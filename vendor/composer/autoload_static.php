@@ -6,6 +6,28 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit378b2a0b29092a4f864022443798119f
 {
+    public static $prefixLengthsPsr4 = array (
+        'l' => 
+        array (
+            'lib\\' => 4,
+        ),
+        'a' => 
+        array (
+            'app\\' => 4,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'lib\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/lib',
+        ),
+        'app\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/app',
+        ),
+    );
+
     public static $classMap = array (
         'Audit' => __DIR__ . '/..' . '/bcosca/fatfree-core/audit.php',
         'Auth' => __DIR__ . '/..' . '/bcosca/fatfree-core/auth.php',
@@ -49,11 +71,31 @@ class ComposerStaticInit378b2a0b29092a4f864022443798119f
         'Web\\OAuth2' => __DIR__ . '/..' . '/bcosca/fatfree-core/web/oauth2.php',
         'Web\\OpenID' => __DIR__ . '/..' . '/bcosca/fatfree-core/web/openid.php',
         'Web\\Pingback' => __DIR__ . '/..' . '/bcosca/fatfree-core/web/pingback.php',
+        'app\\Commands\\TestCommands' => __DIR__ . '/../..' . '/app/Commands/TestCommands.php',
+        'app\\Exceptions\\AppException' => __DIR__ . '/../..' . '/app/Exceptions/AppException.php',
+        'app\\Http\\Controllers\\User\\TestController' => __DIR__ . '/../..' . '/app/Http/Controllers/User/TestController.php',
+        'app\\Http\\Controllers\\User\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/User/UserController.php',
+        'app\\Http\\Middleware\\AuthMiddleware' => __DIR__ . '/../..' . '/app/Http/Middleware/AuthMiddleware.php',
+        'app\\Http\\Middleware\\Middleware' => __DIR__ . '/../..' . '/app/Http/Middleware/Middleware.php',
+        'app\\Http\\Middleware\\ThrottleMiddleware' => __DIR__ . '/../..' . '/app/Http/Middleware/ThrottleMiddleware.php',
+        'app\\Http\\Traits\\JsonResponseTrait' => __DIR__ . '/../..' . '/app/Http/Traits/JsonResponseTrait.php',
+        'app\\Models\\AssetLedgerModel' => __DIR__ . '/../..' . '/app/Models/AssetLedgerModel.php',
+        'app\\Models\\MatchingLogModel' => __DIR__ . '/../..' . '/app/Models/MatchingLogModel.php',
+        'app\\Models\\OrderModel' => __DIR__ . '/../..' . '/app/Models/OrderModel.php',
+        'app\\Models\\TradeModel' => __DIR__ . '/../..' . '/app/Models/TradeModel.php',
+        'app\\Models\\TradingPairModel' => __DIR__ . '/../..' . '/app/Models/TradingPairModel.php',
+        'app\\Models\\UserModel' => __DIR__ . '/../..' . '/app/Models/UserModel.php',
+        'app\\Services\\UserService' => __DIR__ . '/../..' . '/app/Services/UserService.php',
+        'lib\\config\\EnvLoader' => __DIR__ . '/../..' . '/lib/config/EnvLoader.php',
+        'lib\\config\\Load' => __DIR__ . '/../..' . '/lib/config/Load.php',
+        'lib\\encryption\\Encryption' => __DIR__ . '/../..' . '/lib/encryption/Encryption.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInit378b2a0b29092a4f864022443798119f::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit378b2a0b29092a4f864022443798119f::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit378b2a0b29092a4f864022443798119f::$classMap;
 
         }, null, ClassLoader::class);

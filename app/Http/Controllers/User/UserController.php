@@ -2,12 +2,13 @@
 
 namespace app\Http\Controllers\User;
 
-use lib\Http\Services\UserService;
+use app\Http\Traits\JsonResponseTrait;
+use app\Services\UserService;
 use Base;
 
 class UserController {
     protected $userService;
-
+    use JsonResponseTrait;
     public function __construct() {
         $db = Base::instance()->get('DB');
         $this->userService = new UserService($db);
@@ -30,7 +31,7 @@ class UserController {
     public function store($f3) {
         $data = json_decode($f3->get('BODY'), true);
         $userId = $this->userService->createUser($data);
-        echo json_encode(['code' => 201, 'message' => '用户创建成功', 'user_id' => $userId], JSON_UNESCAPED_UNICODE);
+        $this->success(['user_id' => $userId]);
     }
 
     public function update($f3, $params) {

@@ -15,6 +15,8 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     $f3 = require(__DIR__ . '/../app/base.php');
 }
 
+$f3->set('AUTOLOAD', 'app/,lib/');
+
 // 设置调试模式
 $f3->set('DEBUG', 1);
 if ((float)PCRE_VERSION < 8.0) {
@@ -29,16 +31,16 @@ $f3->config('config.ini');
 $f3->route('GET /home/@id', function($f3, $params) {
     Middleware::run([
         AuthMiddleware::class,  // 认证中间件
-        ThrottleMiddleware::class  // 限流中间件
+//        ThrottleMiddleware::class  // 限流中间件
     ], 'app\Http\Controllers\User\TestController->Test',[$f3, $params]);
 });
 
 
-//$f3->route('GET /users', 'lib\Http\Controllers\UserController->index'); // 获取所有用户
-//$f3->route('GET /users/@id', 'lib\Http\Controllers\UserController->show'); // 获取单个用户
-//$f3->route('POST /users', 'lib\Http\Controllers\UserController->store'); // 创建用户
-//$f3->route('PUT /users/@id', 'lib\Http\Controllers\UserController->update'); // 更新用户
-//$f3->route('DELETE /users/@id', 'lib\Http\Controllers\UserController->destroy'); // 删除用户
+$f3->route('GET /users', 'app\Http\Controllers\User\UserController->index'); // 获取所有用户
+$f3->route('GET /users/@id', 'app\Http\Controllers\User\UserController->show'); // 获取单个用户
+$f3->route('POST /users', 'app\Http\Controllers\User\UserController->store'); // 创建用户
+$f3->route('PUT /users/@id', 'app\Http\Controllers\User\UserController->update'); // 更新用户
+$f3->route('DELETE /users/@id', 'app\Http\Controllers\User\UserController->destroy'); // 删除用户
 
 
 /**
@@ -102,11 +104,4 @@ $f3->route('GET /userref', function ($f3) {
     $f3->set('content', 'userref.htm');
     echo View::instance()->render('layout.htm');
 });
-
-
-
-
-// 主页路由，带参数 ID
-//$f3->route('GET /home/@id', 'app\Http\Controllers\User\UserController->Test');  // 绑定控制器方法
-
 return $f3;

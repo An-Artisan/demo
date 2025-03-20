@@ -1,8 +1,8 @@
 <?php
 
-namespace lib\Http\Services;
+namespace app\Services;
 
-use lib\Models\UserModel;
+use app\Models\UserModel;
 
 class UserService {
     protected $userModel;

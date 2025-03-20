@@ -22,9 +22,6 @@ function initFramework() {
     // 设置调试模式
     setupDebugMode($f3);
 
-    // 加载配置
-    loadConfig($f3);
-
     // 连接数据库
     setupDatabase($f3);
 
@@ -43,6 +40,7 @@ function loadAutoload() {
     } else {
         require 'app/base.php';
     }
+
 }
 
 /**
@@ -77,18 +75,6 @@ function setupDebugMode($f3) {
     if ((float)PCRE_VERSION < 8.0) {
         trigger_error('PCRE version is out of date');
     }
-}
-
-/**
- * 加载配置文件
- * @param $f3
- */
-function loadConfig($f3) {
-    require_once __DIR__ . '/lib/config/EnvLoader.php';
-    require_once __DIR__ . '/lib/config/Load.php';
-
-    // 载入 Fat-Free 自带的 config.ini
-//    $f3->config('config.ini');
 }
 
 /**
