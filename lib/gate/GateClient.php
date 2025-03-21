@@ -53,7 +53,7 @@ class GateClient
 
             // 调用 API 获取余额
             $totalBalance = $this->walletApi->getTotalBalance($params);
-             return  ObjectSerializer::sanitizeForSerialization($totalBalance);
+            return ObjectSerializer::sanitizeForSerialization($totalBalance);
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
@@ -77,25 +77,4 @@ class GateClient
         }
     }
 
-    // 替换原来的全局函数 gateApiObjectToArray，封装为类内私有方法
-    private function toArray($data) {
-        if (is_array($data)) {
-            return array_map([$this, 'toArray'], $data);
-        }
-
-        if (is_object($data)) {
-            if (method_exists($data, 'toArray')) {
-                return $this->toArray($data->toArray());
-            }
-
-            return $this->toArray(get_object_vars($data));
-        }
-
-        return $data;
-    }
 }
-
-
-
-
-
