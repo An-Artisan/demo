@@ -16,7 +16,8 @@ class Kernel {
 
     public function schedule() {
         $tasks = [
-            (new ScheduledTask('TestJob', 'run'))->everyMinute(),
+//            (new ScheduledTask('TestJob', 'run'))->everyMinute(),
+            (new ScheduledTask('TestJob', 'run'))->dailyAt('03:00'),
             (new ScheduledTask('TestJob', 'handle'))->dailyAt('03:00'),
         ];
 

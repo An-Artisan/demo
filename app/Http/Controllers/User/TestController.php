@@ -6,6 +6,7 @@ use lib\config\Load;
 class  TestController
 {
     use JsonResponseTrait;
+
     function Test($f3, $params)
     {
 //        $f3->set('content', 'welcome.htm');
