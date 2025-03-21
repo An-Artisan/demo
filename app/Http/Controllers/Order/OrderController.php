@@ -15,7 +15,7 @@ class OrderController extends BaseController
     public function placeOrder($f3) {
         $db = Base::instance()->get('DB');
         $orderModel = new OrderModel();
-        $matchingEngineModel = new MatchingEngineService();
+        $MatchingEngineService = new MatchingEngineService();
 
         try {
             // 开启事务
@@ -41,7 +41,7 @@ class OrderController extends BaseController
             $orderId = $orderModel->createOrder($userId, $pairId, $type, $side, $price, $amount);
 
             // 触发撮合引擎
-            $matchingEngineModel->matchOrders($pairId);
+            $MatchingEngineService->matchOrders($pairId);
 
             // 提交事务
             $db->commit();
