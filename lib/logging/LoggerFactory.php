@@ -1,5 +1,5 @@
 <?php
-namespace lib\Logging;
+namespace lib\logging;
 
 class LoggerFactory {
 

@@ -41,5 +41,9 @@ $consoleLogger = new ConsoleLogger();
 $fileLogger = new FileLogger();
 $bothLogger = new BothLogger($consoleLogger, $fileLogger);
 $loggerFactory = new LoggerFactory($consoleLogger, $fileLogger, $bothLogger);
-$logger = $loggerFactory->create($config['logging']['log_mode']);
+try {
+    $logger = $loggerFactory->create($config['logging']['log_mode']);
+} catch (Exception $e) {
+    die($e->getMessage());
+}
 $f3->set('logger', $logger);
