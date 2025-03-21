@@ -5,7 +5,6 @@ namespace app\Http\Middleware;
 use app\Http\Traits\JsonResponseTrait;
 
 class ThrottleMiddleware extends Middleware {
-    use JsonResponseTrait;
     public function handle($f3) {
         $ip = $_SERVER['REMOTE_ADDR'];
         $key = "throttle_{$ip}";

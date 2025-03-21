@@ -2,7 +2,10 @@
 
 namespace app\Http\Middleware;
 
+use app\Http\Traits\JsonResponseTrait;
+
 abstract class Middleware {
+    use JsonResponseTrait;
     /**
      * 运行中间件并调用目标函数
      *
