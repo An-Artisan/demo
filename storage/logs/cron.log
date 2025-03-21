@@ -1,0 +1,81 @@
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
