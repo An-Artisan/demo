@@ -37,12 +37,15 @@ $f3->route('GET /users', function($f3, $params) {
 
 
 
-$f3->route('GET /show-chart', function($f3, $params) {
-    Middleware::run([
-//        AuthMiddleware::class,  // 认证中间件
-//        ThrottleMiddleware::class  // 限流中间件
-    ], 'app\Http\Controllers\Order\ChartController->showChart',[$f3, $params]);
-});
+//$f3->route('GET /show-chart', function($f3, $params) {
+//    Middleware::run([
+////        AuthMiddleware::class,  // 认证中间件
+////        ThrottleMiddleware::class  // 限流中间件
+//    ], 'app\Http\Controllers\Order\ChartController->showChart',[$f3, $params]);
+//});
+
+$f3->route('GET /show-chart', 'app\Http\Controllers\Order\ChartController->showChart');
+
 
 //$f3->route('GET /users', 'app\Http\Controllers\User\UserController->index'); // 获取所有用户
 $f3->route('GET /users/@id', 'app\Http\Controllers\User\UserController->show'); // 获取单个用户
@@ -50,7 +53,8 @@ $f3->route('POST /users', 'app\Http\Controllers\User\UserController->store'); //
 $f3->route('PUT /users/@id', 'app\Http\Controllers\User\UserController->update'); // 更新用户
 $f3->route('DELETE /users/@id', 'app\Http\Controllers\User\UserController->destroy'); // 删除用户
 //币种模块
-$f3->route('GET /coins/get_currency_list', 'app\Http\Controllers\CoinController->getCurrencyList'); //交易对列表
+$f3->route('GET /coins/get-currency-list', 'app\Http\Controllers\Coins\CoinsController->getCurrencyList'); //交易对列表
+$f3->route('GET /coins/get-currency-info', 'app\Http\Controllers\Coins\CoinsController->getCurrencyInfo'); //交易对列表
 
 
 /**

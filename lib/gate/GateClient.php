@@ -76,4 +76,89 @@ class GateClient
         }
     }
 
+    /**
+     * 获取单个现货交易对的详细信息
+     *
+     * @param string $currencyPair 交易对名称，如 BTC_USDT
+     * @return array|bool|float|int|object|string
+        */
+    public function getSpotPairInfo(string $currencyPair): array
+    {
+        try {
+            $pairInfo = $this->spotApi->getCurrencyPair($currencyPair);
+            return ObjectSerializer::sanitizeForSerialization($pairInfo);
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * 获取单个现货交易对的配置信息
+     *
+     * @param string $currencyPair 交易对名称，如 BTC_USDT
+     * @return array|bool|float|int|object|string
+      */
+
+    public function getSpotPairConfig(string $currencyPair): array
+    {
+        try {
+            $pairConfig = $this->spotApi->getCurrencyPairConfig($currencyPair);
+            return ObjectSerializer::sanitizeForSerialization($pairConfig);
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * 获取单个现货交易对的 K 线数据
+     *
+     * @param string $currencyPair 交易对名称，如 BTC_USDT
+     * @param string $interval 时间间隔，如 1min, 5min, 15min, 30min, 1hour, 2hour, 4hour, 6hour, 12hour, 1day, 3day, 7day
+     * @param int $limit 限制返回的数据条数，最大 1000
+     * @param int $startTime 开始时间戳（秒）
+     * @param int $endTime 结束时间戳（秒）
+     * @return array|bool|float|int|object|string
+     */
+    public function getSpotKline(string $currencyPair, string $interval, int $limit, int $startTime, int $endTime): array
+    {
+        try {
+            $kline = $this->spotApi->getCurrencyPairKline($currencyPair, $interval, $limit, $startTime, $endTime);
+            return ObjectSerializer::sanitizeForSerialization($kline);
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * 获取单个现货交易对的最新成交数据
+     *
+     * @param string $currencyPair 交易对名称，如 BTC_USDT
+     * @return array|bool|float|int|object|string
+     */
+    public function getSpotTicker(string $currencyPair): array
+    {
+        try {
+            $ticker = $this->spotApi->getCurrencyPairTicker($currencyPair);
+            return ObjectSerializer::sanitizeForSerialization($ticker);
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * 获取单个现货交易对的深度数据
+     *
+     * @param string $currencyPair 交易对名称，如 BTC_USDT
+     * @param int $limit 限制返回的数据条数，最大 1000
+     * @return array|bool|float|int|object|string
+     */
+    public function getSpotDepth(string $currencyPair, int $limit): array
+    {
+        try {
+            $depth = $this->spotApi->getCurrencyPairDepth($currencyPair, $limit);
+            return ObjectSerializer::sanitizeForSerialization($depth);
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
 }

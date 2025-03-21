@@ -5,14 +5,15 @@ namespace app\Http\Controllers\Order;
 
 use app\Http\Controllers\BaseController;
 use View;
+use Template;
 
 class ChartController extends BaseController
 {
     // 显示K线图页面
-    public function showChart($f3)
+    public function showChart()
     {
 //        $f3->set('content', 'welcome.htm');
-        echo View::instance()->render('order/chart.html');
+        echo Template::instance()->render('order/chart.html');
     }
 
 
