@@ -8,7 +8,9 @@
     "bcosca/fatfree-core": "^3.8",
     "ext-json": "*",
     "ext-openssl": "*",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "gateio/gateapi-php": "^6.94",
+    "symfony/var-dumper": "^4.4"
   },
   "autoload": {
     "psr-4": {

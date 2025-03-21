@@ -19,5 +19,9 @@ return [
         'level' => env('LOG_LEVEL', 'debug'),
         'log_mode' => env('LOG_MODE', 'console'),
     ],
+    'gate' => [
+        'api_key' => env('GATE_API_KEY', ''),
+        'api_secret' => env('GATE_API_SECRET', ''),
+    ]
 ];
 
