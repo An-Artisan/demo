@@ -12,7 +12,7 @@ class BothLogger implements LoggerInterface {
         $this->fileLogger = $fileLogger;
     }
 
-    public function write(string $message, string $level) {
+    public function write($message, string $level) {
         // 同时输出到控制台和文件
         $this->consoleLogger->write($message, $level);
         $this->fileLogger->write($message, $level);

@@ -3,6 +3,10 @@ namespace app\Console;
 
 use lib\schedule\ScheduledTask;
 
+
+//crontab -e 配置  /usr/local/opt/php@7.1/bin/php /Users/artisan/PHP/demo/artisan schedule:run
+//  /usr/local/opt/php@7.1/bin/php /Users/artisan/PHP/demo/artisan 修改自己的php目录和项目目录
+
 class Kernel {
     public function commands(): array {
         return [
@@ -11,8 +15,6 @@ class Kernel {
     }
 
     public function schedule() {
-//        $f3 = \Base::instance();
-//        (new \app\Console\Commands\TestJob($f3))->run();
         $tasks = [
             (new ScheduledTask('TestJob', 'run'))->everyMinute(),
             (new ScheduledTask('TestJob', 'handle'))->dailyAt('03:00'),

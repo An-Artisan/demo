@@ -5,7 +5,7 @@ namespace lib\logging;
 class FileLogger implements LoggerInterface {
 
     protected $logFile;
-
+    use LogFormatterTrait;
     public function __construct() {
         $logDir = __DIR__ . '/../../storage/logs';
         $this->logFile = $logDir . '/app.log';
@@ -25,8 +25,9 @@ class FileLogger implements LoggerInterface {
             throw new \RuntimeException("Log file is not writable: {$this->logFile}");
         }
     }
-    public function write(string $message, string $level) {
-        $logMessage = "[" . date('Y-m-d H:i:s') . "] [{$level}] {$message}\n";
+    public function write( $message, string $level) {
+        $formattedMessage = $this->formatMessage($message);
+        $logMessage = "[{$level}] {$formattedMessage}" . PHP_EOL;
         file_put_contents($this->logFile, $logMessage, FILE_APPEND);  // 写入文件
     }
 

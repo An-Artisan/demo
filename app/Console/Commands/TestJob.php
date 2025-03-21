@@ -1,6 +1,8 @@
 <?php
 namespace app\Console\Commands;
 
+use app\Services\UserService;
+
 class TestJob {
 
     // php artisan.php TestJob run
@@ -16,6 +18,9 @@ class TestJob {
 
     public function run() {
         logger()->write("hello job ", 'info');
+        $user =  new UserService();
+        $users = $user->getUsers();
+        logger()->write($users, 'info');
         echo "运行 TestJob::run 成功  \n";
     }
 

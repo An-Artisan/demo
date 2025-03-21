@@ -1,6 +1,7 @@
 <?php
 namespace lib\schedule;
 
+
 class ScheduledTask {
     // 要执行的命令类名，例如 TestJob
     protected $job;
