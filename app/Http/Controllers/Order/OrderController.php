@@ -6,8 +6,8 @@ use app\Models\OrderModel;
 use app\Models\TradingPairModel;
 use app\Models\UserModel;
 use app\Services\MatchingEngineService;
-use lib\Base;
-use lib\TradeConstants;
+use Base;
+use app\Constants;
 
 class OrderController extends BaseController
 {

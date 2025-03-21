@@ -11,7 +11,7 @@ class ChartController extends BaseController
     // 显示K线图页面
     public function showChart($f3)
     {
-        $f3->set('content', 'welcome.htm');
+//        $f3->set('content', 'welcome.htm');
         echo View::instance()->render('order/chart.html');
     }
 
