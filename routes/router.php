@@ -34,8 +34,38 @@ $f3->route('GET /users', function($f3, $params) {
     ], 'app\Http\Controllers\User\UserController->index',[$f3, $params]);
 }); // 获取所有用户
 
+# 登录
+$f3->route('POST /api/login', 'app\Http\Controllers\Auth\LoginController->login');
+
+// 登录页面（GET）
+$f3->route('GET /login', function($f3) {
+    $f3->set('content', 'login.htm');
+    echo View::instance()->render('layout.htm');
+});
 
 
+// 登录页面
+$f3->route('GET /login', function($f3) {
+    $f3->set('content', 'login.htm');  // ✅ 设置 `content`，确保 `layout.htm` 能正确加载 `login.htm`
+    echo View::instance()->render('layout.htm');
+});
+
+
+// 登录成功后的首页（后台主界面）
+$f3->route('GET /dashboard', function($f3) {
+    if (!$f3->exists('SESSION.user')) {
+        $f3->reroute('/login');
+    }
+    $f3->set('user', $f3->get('SESSION.user'));
+    $f3->set('content', 'dashboard.htm');
+    echo View::instance()->render('layout.htm');
+});
+
+// 退出登录
+$f3->route('GET /logout', function($f3) {
+    $f3->clear('SESSION.user');
+    $f3->reroute('/login');
+});
 
 $f3->route('GET /show-chart', function($f3, $params) {
     Middleware::run([
