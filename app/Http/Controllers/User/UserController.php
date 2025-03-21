@@ -21,8 +21,6 @@ class UserController
 
     public function index($f3)
     {
-
-
         $users = $this->userService->getUsers();
         $this->success($users);
     }

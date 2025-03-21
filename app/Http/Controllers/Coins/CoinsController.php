@@ -24,6 +24,14 @@ class CoinsController extends BaseController
         $balance = $client->getBalance();
         dd($balance);
 
+        $apiKey = Load::get('gate.api_key');
+        $apiSecret = Load::get('gate.api_secret');
+        $client = new GateClient($apiKey, $apiSecret);
+
+        // ✅ 获取账户余额（不包含详细信息）
+        $balance = $client->getBalance();
+        dd($balance);
+
         $data = [];
         if ($data === false) {
             $this->error(500, "Failed to fetch data from Gate.io API");
