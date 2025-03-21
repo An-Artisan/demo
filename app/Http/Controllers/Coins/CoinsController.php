@@ -8,28 +8,13 @@ use lib\gate\GateClient;
 
 class CoinsController extends BaseController
 {
-    // 获取所有法定货币列表
+    // 获取所有交易对列表
     public function getCurrencyList($f3)
     {
-        //TODO 此处填充gateio请求的数据代码
-        //  获取币种列表的 API 地址 $url = "https://api.gateio.ws/api/v4/spot/currencies";
-        // 检查数据是否获取成功
-
         // 调用余额。
-        $apiKey = Load::get('gate.api_key');
-        $apiSecret = Load::get('gate.api_secret');
-        $client = new GateClient($apiKey, $apiSecret);
-
+        $client = new GateClient();
         // ✅ 获取账户余额（不包含详细信息）
-        $balance = $client->getBalance();
-        dd($balance);
-
-        $apiKey = Load::get('gate.api_key');
-        $apiSecret = Load::get('gate.api_secret');
-        $client = new GateClient($apiKey, $apiSecret);
-
-        // ✅ 获取账户余额（不包含详细信息）
-        $balance = $client->getBalance();
+        $balance = $client->getSpotPairs();
         dd($balance);
 
         $data = [];
