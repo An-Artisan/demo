@@ -9,8 +9,8 @@ class  TestController
 
     function Test($f3, $params)
     {
-//        $f3->set('content', 'welcome.htm');
-//        echo \View::instance()->render('layout.htm');
+        $f3->set('content', 'welcome.htm');
+        echo \View::instance()->render('layout.htm');
         // 获取路由参数
         $id = $params['id'];
         $name = $f3->get('GET.name');  // 获取 name 参数

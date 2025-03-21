@@ -15,13 +15,9 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     $f3 = require(__DIR__ . '/../app/base.php');
 }
 
-$f3->set('AUTOLOAD', 'app/,lib/');
 
-// 设置调试模式
-$f3->set('DEBUG', 1);
-if ((float)PCRE_VERSION < 8.0) {
-    trigger_error('PCRE version is out of date');
-}
+
+
 
 // 绑定控制器方法 + 中间件（参考 Laravel 风格）
 $f3->route('GET /home/@id', function($f3, $params) {
@@ -39,6 +35,14 @@ $f3->route('GET /users', function($f3, $params) {
 }); // 获取所有用户
 
 
+
+
+$f3->route('GET /show-chart', function($f3, $params) {
+    Middleware::run([
+//        AuthMiddleware::class,  // 认证中间件
+//        ThrottleMiddleware::class  // 限流中间件
+    ], 'app\Http\Controllers\Order\ChartController->showChart',[$f3, $params]);
+});
 
 //$f3->route('GET /users', 'app\Http\Controllers\User\UserController->index'); // 获取所有用户
 $f3->route('GET /users/@id', 'app\Http\Controllers\User\UserController->show'); // 获取单个用户

@@ -3,19 +3,26 @@
 namespace app\Http\Controllers\Order;
 
 
+use app\Http\Controllers\BaseController;
+use View;
+
 class ChartController extends BaseController
 {
     // 显示K线图页面
-    public function showChart($f3) {
-        echo Template::instance()->render('app/ui/order/chart.html');
+    public function showChart($f3)
+    {
+        $f3->set('content', 'welcome.htm');
+        echo View::instance()->render('order/chart.html');
     }
 
+
     // 提供K线图数据（JSON格式）
-    public function getChartData($f3) {
+    public function getChartData($f3)
+    {
         $chartModel = new ChartModel();
 //        $data = $chartModel->getKLineData();
         //TODO 暂时使用假数据
-        $data =  [
+        $data = [
             [
                 'timestamp' => 1672502400000, // 时间戳
                 'open' => 100.0, // 开盘价
@@ -34,8 +41,10 @@ class ChartController extends BaseController
         header('Content-Type: application/json');
         $this->success($data);
     }
+
 //根据币种信息获取市场挂单列表接口
-    public function getOrderBook(Base $f3) {
+    public function getOrderBook(Base $f3)
+    {
         // 获取请求参数
         $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
         $limit = $f3->get('GET.limit') ?? 10;
@@ -45,7 +54,7 @@ class ChartController extends BaseController
 
         //ToDo  发送请求并获取数据
 //        $data = $this->curlService->get($url);
-        $data =[];
+        $data = [];
         // 检查数据是否获取成功
         if ($data === false) {
             $f3->error(500, "Failed to fetch data from Gate.io API");
