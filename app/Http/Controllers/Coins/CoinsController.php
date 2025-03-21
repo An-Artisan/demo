@@ -2,7 +2,11 @@
 
 namespace app\Http\Controllers\Coins;
 
-class CoinsController extends \BaseController
+use app\Http\Controllers\BaseController;
+use lib\config\Load;
+use lib\gate\GateClient;
+
+class CoinsController extends BaseController
 {
     // 获取所有法定货币列表
     public function getCurrencyList($f3)
