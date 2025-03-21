@@ -79,6 +79,8 @@ $f3->route('GET /users/@id', 'app\Http\Controllers\User\UserController->show'); 
 $f3->route('POST /users', 'app\Http\Controllers\User\UserController->store'); // 创建用户
 $f3->route('PUT /users/@id', 'app\Http\Controllers\User\UserController->update'); // 更新用户
 $f3->route('DELETE /users/@id', 'app\Http\Controllers\User\UserController->destroy'); // 删除用户
+//币种模块
+$f3->route('GET /coins/get_currency_list', 'app\Http\Controllers\CoinController->getCurrencyList'); //交易对列表
 
 
 /**
