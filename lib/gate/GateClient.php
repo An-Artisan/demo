@@ -18,7 +18,7 @@ class GateClient
     /**
      * 构造函数 - 初始化 API 客户端
      *
-     * @param string $apiKey API 密钥
+     * @param string $apiKey API KEY
      * @param string $apiSecret API 密钥
      */
     public function __construct(string $apiKey = '', string $apiSecret = '')
