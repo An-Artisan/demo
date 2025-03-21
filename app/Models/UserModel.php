@@ -9,7 +9,7 @@ use lib\encryption\Encryption;
 
 class UserModel extends \DB\SQL\Mapper {
     public function __construct() {
-        parent::__construct(Base::instance()->get('DB'), 'users');
+        parent::__construct(db(), 'users');
     }
 
     // 创建用户

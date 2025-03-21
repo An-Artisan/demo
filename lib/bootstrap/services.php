@@ -28,7 +28,7 @@ $config = require $configFile;
 
 // 数据库连接
 if (!isset($db)) {
-    $db = new SQL(
+    $db = new DB\SQL(
         "mysql:host={$config['database']['host']};port={$config['database']['port']};dbname={$config['database']['dbname']}",
         $config['database']['username'],
         $config['database']['password']
