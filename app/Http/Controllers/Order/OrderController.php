@@ -1,7 +1,7 @@
 <?php
 namespace app\Http\Controllers\Order;
 
-use app\Http\Traits\JsonResponseTrait;
+use app\Http\Controllers\BaseController;
 use app\Models\OrderModel;
 use app\Models\TradingPairModel;
 use app\Models\UserModel;
@@ -9,13 +9,13 @@ use app\Services\MatchingEngineService;
 use lib\Base;
 use lib\TradeConstants;
 
-class OrderController {
-    use JsonResponseTrait;
+class OrderController extends BaseController
+{
     // 用户提交订单
     public function placeOrder($f3) {
-        $db = config("database");
+        $db = Base::instance()->get('DB');
         $orderModel = new OrderModel();
-        $matchingEngineModel = new MatchingEngineService();
+        $MatchingEngineService = new MatchingEngineService();
 
         try {
             // 开启事务
@@ -41,7 +41,7 @@ class OrderController {
             $orderId = $orderModel->createOrder($userId, $pairId, $type, $side, $price, $amount);
 
             // 触发撮合引擎
-            $matchingEngineModel->matchOrders($pairId);
+            $MatchingEngineService->matchOrders($pairId);
 
             // 提交事务
             $db->commit();
