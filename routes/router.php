@@ -46,7 +46,7 @@ $f3->route('GET /login', function($f3) {
 
 // 登录页面
 $f3->route('GET /login', function($f3) {
-    $f3->set('content', 'login.htm');  // ✅ 设置 `content`，确保 `layout.htm` 能正确加载 `login.htm`
+    $f3->set('content', 'login.htm');  // 设置 `content`，确保 `layout.htm` 能正确加载 `login.htm`
     echo View::instance()->render('layout.htm');
 });
 
