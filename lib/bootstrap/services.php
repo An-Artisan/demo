@@ -47,3 +47,4 @@ try {
     die($e->getMessage());
 }
 $f3->set('logger', $logger);
+$f3->set('UI','ui/');

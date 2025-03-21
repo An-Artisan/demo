@@ -5,7 +5,6 @@ namespace lib\gate;
 use GateApi\Configuration;
 use GateApi\Api\WalletApi;
 use GateApi\Api\SpotApi;
-use GateApi\Model\TotalBalance;
 use GateApi\ObjectSerializer;
 use GuzzleHttp\Client;
 use lib\config\Load;
