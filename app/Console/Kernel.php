@@ -1,6 +1,8 @@
 <?php
 namespace app\Console;
 
+use lib\schedule\ScheduledTask;
+
 class Kernel {
     public function commands(): array {
         return [
@@ -9,7 +11,17 @@ class Kernel {
     }
 
     public function schedule() {
-        // 简单判断当前时间每分钟跑一次任务
-        (new \app\Console\Commands\TestJob())->run();
+//        $f3 = \Base::instance();
+//        (new \app\Console\Commands\TestJob($f3))->run();
+        $tasks = [
+            (new ScheduledTask('TestJob', 'run'))->everyMinute(),
+            (new ScheduledTask('TestJob', 'handle'))->dailyAt('03:00'),
+        ];
+
+        foreach ($tasks as $task) {
+            if ($task->shouldRunNow()) {
+                $task->run();
+            }
+        }
     }
 }

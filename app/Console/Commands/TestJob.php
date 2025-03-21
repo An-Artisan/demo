@@ -16,7 +16,7 @@ class TestJob {
 
     public function run() {
         logger()->write("hello job ", 'info');
-        echo "运行 TestJob::run 成功 ✅ \n";
+        echo "运行 TestJob::run 成功  \n";
     }
 
 }
