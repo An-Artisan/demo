@@ -6,7 +6,7 @@ use app\Http\Traits\JsonResponseTrait;
 
 class ThrottleMiddleware extends Middleware {
     use JsonResponseTrait;
-    public function handle() {
+    public function handle($f3) {
         $ip = $_SERVER['REMOTE_ADDR'];
         $key = "throttle_{$ip}";
         $cacheDir = __DIR__ . "/../../../storage/cache/";
@@ -30,9 +30,11 @@ class ThrottleMiddleware extends Middleware {
         $data['count']++;
 
         if ($data['count'] > 3) { // 限制每分钟 3 次请求
+            $f3->get('log')->write('请求过于频繁，请稍后再试', 'waring');
             $this->error(429,"请求过于频繁，请稍后再试",[]);
         }
         // 保存新的计数数据
         file_put_contents($cacheFile, json_encode($data, JSON_UNESCAPED_UNICODE));
+
     }
 }

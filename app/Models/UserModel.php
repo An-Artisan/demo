@@ -3,6 +3,7 @@
 namespace app\Models;
 
 use app\Exceptions\AppException;
+use Base;
 use DB\SQL\Mapper;
 use lib\encryption\Encryption;
 

@@ -10,6 +10,7 @@ if (!function_exists('config')) {
 
 if (!function_exists('env')) {
     function env($key, $default = null) {
+
         $value = getenv($key);
         return $value !== false ? $value : $default;
     }

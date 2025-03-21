@@ -1,5 +1,4 @@
 <?php
-
 return [
     'app' => [
         'name' => env('APP_NAME', 'Fat-Free App'),
@@ -18,5 +17,7 @@ return [
     ],
     'logging' => [
         'level' => env('LOG_LEVEL', 'debug'),
+        'log_mode' => env('LOG_MODE', 'console'),
     ],
 ];
+

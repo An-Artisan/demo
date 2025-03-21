@@ -11,11 +11,12 @@ abstract class Middleware {
      * @param array $params 额外的参数（如 Fat-Free Framework 的 `$f3` 和 `$params`）
      */
     public static function run(array $middlewares, $next, array $params = []) {
+        $f3 = \Base::instance(); // 获取 F3 实例
         // 执行所有中间件
         foreach ($middlewares as $middleware) {
             $instance = new $middleware();
             if (method_exists($instance, 'handle')) {
-                $instance->handle();
+                $instance->handle($f3);
             }
         }
 

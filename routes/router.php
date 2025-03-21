@@ -31,8 +31,16 @@ $f3->route('GET /home/@id', function($f3, $params) {
     ], 'app\Http\Controllers\User\TestController->Test',[$f3, $params]);
 });
 
+$f3->route('GET /users', function($f3, $params) {
+    Middleware::run([
+        AuthMiddleware::class,  // 认证中间件
+        ThrottleMiddleware::class  // 限流中间件
+    ], 'app\Http\Controllers\User\UserController->index',[$f3, $params]);
+}); // 获取所有用户
 
-$f3->route('GET /users', 'app\Http\Controllers\User\UserController->index'); // 获取所有用户
+
+
+//$f3->route('GET /users', 'app\Http\Controllers\User\UserController->index'); // 获取所有用户
 $f3->route('GET /users/@id', 'app\Http\Controllers\User\UserController->show'); // 获取单个用户
 $f3->route('POST /users', 'app\Http\Controllers\User\UserController->store'); // 创建用户
 $f3->route('PUT /users/@id', 'app\Http\Controllers\User\UserController->update'); // 更新用户

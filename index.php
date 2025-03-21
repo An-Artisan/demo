@@ -1,10 +1,20 @@
 <?php
 
 // **初始化框架**
-initFramework();
+use lib\logging\BothLogger;
+use lib\logging\ConsoleLogger;
+use lib\logging\FileLogger;
+use lib\logging\LoggerFactory;
+
+try {
+    initFramework();
+} catch (Exception $e) {
+    die($e->getMessage());
+}
 
 /**
  * 初始化 Fat-Free Framework
+ * @throws Exception
  */
 function initFramework() {
     // 加载 Composer 自动加载（如果可用）
@@ -18,13 +28,16 @@ function initFramework() {
 
     // 初始化 Fat-Free Framework
     $f3 = require(__DIR__ . '/routes/router.php');
+    $config = require_once __DIR__ . '/config/config.php';
 
     // 设置调试模式
     setupDebugMode($f3);
 
     // 连接数据库
-    setupDatabase($f3);
+    setupDatabase($f3,$config);
 
+    // 初始化logging
+    setupLogging($f3,$config);
     // 运行框架
     $f3->run();
 }
@@ -81,15 +94,30 @@ function setupDebugMode($f3) {
  * 初始化数据库连接
  * @param $f3
  */
-function setupDatabase($f3) {
-    $dbConfig = require_once __DIR__ . '/config/config.php';
-    if (!isset($dbConfig['database']['host'], $dbConfig['database']['port'], $dbConfig['database']['dbname'])) {
+function setupDatabase($f3,$config) {
+    if (!isset($config['database']['host'], $config['database']['port'], $config['database']['dbname'])) {
         die('Database configuration is missing or incorrect.');
     }
 
     $f3->set('DB', new DB\SQL(
-        "mysql:host={$dbConfig['database']['host']};port={$dbConfig['database']['port']};dbname={$dbConfig['database']['dbname']}",
-        $dbConfig['database']['username'],
-        $dbConfig['database']['password']
+        "mysql:host={$config['database']['host']};port={$config['database']['port']};dbname={$config['database']['dbname']}",
+        $config['database']['username'],
+        $config['database']['password']
     ));
+}
+
+/**
+ * 设置日志
+ * @throws Exception
+ */
+function setupLogging($f3,$config) {
+    // 创建日志实例
+    $consoleLogger = new ConsoleLogger();
+    $fileLogger = new FileLogger();
+    $bothLogger = new BothLogger($consoleLogger,$fileLogger);
+    $loggerFactory = new LoggerFactory($consoleLogger, $fileLogger,$bothLogger);
+    $log = $loggerFactory->create($config['logging']['log_mode']);
+    // 将日志实例注册到 F3 中，作为全局访问的变量
+    $f3->set('log', $log);
+    $f3->get('log')->write('This is an info message', 'info');
 }
