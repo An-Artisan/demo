@@ -11,54 +11,47 @@ class CoinsController extends BaseController
     // 获取所有交易对列表
     public function getCurrencyList($f3)
     {
-        // 调用余额。
         $client = new GateClient();
-        // ✅ 获取账户余额（不包含详细信息）
-        $balance = $client->getSpotPairs();
-        dd($balance);
+        // 获取交易对
+        $data = $client->getSpotPairs();
 
-        $data = [];
         if ($data === false) {
             $this->error(500, "Failed to fetch data from Gate.io API");
             return;
         }
 
-        // 返回 JSON 格式的币种列表
-        header('Content-Type: application/json');
         $this->success($data);
     }
 
     //获取单个币种信息的接口
     public function getCurrencyInfo($f3)
     {
-        //TODO 此处填充gateio请求的数据代码
-        //  获取单个币种信息的 API 地址 $url = "https://api.gateio.ws/api/v4/spot/currency_pairs/BTC_USDT";
-        // 检查数据是否获取成功
+        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
+        $client = new GateClient();
+        // 获取单交易对信息
+        $data = $client->getSpotPairInfo($currencyPair);
+
         $data = [];
         if ($data === false) {
             $this->error(500, "Failed to fetch data from Gate.io API");
             return;
         }
 
-        // 返回 JSON 格式的单个币种信息
-        header('Content-Type: application/json');
         $this->success($data);
     }
 
     //获取币种配置信息的接口
     public function getCurrencyConfig($f3)
     {
-        //TODO 此处填充gateio请求的数据代码
-        //  获取币种配置信息的 API 地址 $url = "https://api.gateio.ws/api/v4/spot/currency_pairs/BTC_USDT/config";
-        // 检查数据是否获取成功
-        $data = [];
+        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
+        $client = new GateClient();
+        // 获取单交易对信息
+        $data = $client->getSpotPairConfig($currencyPair);
         if ($data === false) {
             $this->error(500, "Failed to fetch data from Gate.io API");
             return;
         }
 
-        // 返回 JSON 格式的币种配置信息
-        header('Content-Type: application/json');
         $this->success($data);
     }
 
