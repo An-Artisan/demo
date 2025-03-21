@@ -8,6 +8,7 @@ use GateApi\Api\SpotApi;
 use GateApi\Model\TotalBalance;
 use GateApi\ObjectSerializer;
 use GuzzleHttp\Client;
+use lib\config\Load;
 
 class GateClient
 {
@@ -20,8 +21,12 @@ class GateClient
      * @param string $apiKey API 密钥
      * @param string $apiSecret API 密钥
      */
-    public function __construct(string $apiKey, string $apiSecret)
+    public function __construct(string $apiKey = '', string $apiSecret = '')
     {
+        if ($apiKey == '' || $apiSecret == '') {
+            $apiKey = Load::get('gate.api_key');
+            $apiSecret = Load::get('gate.api_secret');
+        }
         // 配置 API 认证信息
         $config = Configuration::getDefaultConfiguration()
             ->setKey($apiKey)
