@@ -24,7 +24,7 @@ class BothLogger implements LoggerInterface {
      * @param string $logMode 日志模式
      * @return bool 是否支持该日志模式
      */
-    public function supports($logMode): bool
+    public function supports(string $logMode): bool
     {
         return $logMode === 'both';  // 仅支持控制台模式
     }

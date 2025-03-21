@@ -30,7 +30,8 @@ class ThrottleMiddleware extends Middleware {
         $data['count']++;
 
         if ($data['count'] > 3) { // 限制每分钟 3 次请求
-            $f3->get('log')->write('请求过于频繁，请稍后再试', 'waring');
+            logger()->write("请求过于频繁，请稍后再试", 'waring');
+
             $this->error(429,"请求过于频繁，请稍后再试",[]);
         }
         // 保存新的计数数据

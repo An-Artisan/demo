@@ -1,0 +1,56 @@
+#!/usr/bin/env php
+<?php
+
+// Composer 自动加载
+require_once __DIR__ . '/vendor/autoload.php';
+
+// 加载辅助函数
+require_once __DIR__ . '/helpers/helpers.php';
+
+// 注册核心服务（包括 F3、env、config、db、logger）
+require_once __DIR__ . '/lib/bootstrap/services.php';
+
+use app\Console\Kernel;
+
+// 获取 CLI 参数
+$argv = $_SERVER['argv'];
+$command = $argv[1] ?? null; // ← 这里就是 'TestJob'
+$method = $argv[2] ?? 'handle'; // 默认执行 handle 方法 // ← 这里就是 'run'
+
+// 加载所有命令
+$kernel = new Kernel();
+$commands = $kernel->commands();
+
+// 特殊命令：定时任务入口
+if ($command === 'schedule:run') {
+    $kernel->schedule();
+    exit;
+}
+
+// 判断是否存在匹配的命令
+if (isset($commands[$command])) {
+
+    // 获取注册的命令类名，例如：app\Console\Commands\TestJob
+    $class = $commands[$command];
+
+    // 使用反射查看该类是否有构造函数（用于判断是否需要注入 F3）
+    $reflection = new ReflectionClass($class);
+
+    // 如果有构造函数，则传入 F3 实例进行依赖注入，否则直接实例化
+    $instance = $reflection->getConstructor()
+        ? new $class(\Base::instance())
+        : new $class();
+
+    // 判断该类中是否定义了对应的方法（默认是 handle，也可以是 run、其他）
+    if (method_exists($instance, $method)) {
+        // 执行该方法
+        $instance->$method();
+    } else {
+        // 方法不存在，提示错误信息
+        echo "方法 {$method} 不存在\n";
+    }
+
+} else {
+    // 命令未找到，提示错误信息
+    echo "命令 {$command} 未找到\n";
+}

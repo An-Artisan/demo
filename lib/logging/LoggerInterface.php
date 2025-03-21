@@ -17,5 +17,5 @@ interface LoggerInterface {
      * @param string $logMode
      * @return bool
      */
-    public function supports($logMode): bool;
+    public function supports(string $logMode): bool;
 }

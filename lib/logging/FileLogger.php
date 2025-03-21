@@ -30,7 +30,7 @@ class FileLogger implements LoggerInterface {
         file_put_contents($this->logFile, $logMessage, FILE_APPEND);  // 写入文件
     }
 
-    public function supports($logMode): bool
+    public function supports(string $logMode): bool
     {
         return $logMode === 'file';
     }

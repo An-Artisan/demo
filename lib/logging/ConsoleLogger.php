@@ -12,7 +12,7 @@ class ConsoleLogger implements LoggerInterface {
         }
     }
 
-    public function supports($logMode): bool
+    public function supports(string $logMode): bool
     {
         return $logMode === 'console';  // 仅支持控制台模式
     }
