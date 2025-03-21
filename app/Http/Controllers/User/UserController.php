@@ -22,13 +22,7 @@ class UserController
     public function index($f3)
     {
 
-//        $apiKey = Load::get('gate.api_key');
-//        $apiSecret = Load::get('gate.api_secret');
-//        $client = new GateClient($apiKey, $apiSecret);
-//
-//        // ✅ 获取账户余额（不包含详细信息）
-//        $balance = $client->getBalance();
-//        dd($balance);
+
         $users = $this->userService->getUsers();
         $this->success($users);
     }
