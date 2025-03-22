@@ -4,16 +4,21 @@ namespace app\Http\Controllers\Order;
 
 
 use app\Http\Controllers\BaseController;
-use View;
 use Template;
 
 class ChartController extends BaseController
 {
     // 显示K线图页面
-    public function showChart()
+    public function chart()
     {
+        echo 1231;exit;
 //        $f3->set('content', 'welcome.htm');
-        echo Template::instance()->render('order/chart.html');
+        $f3->set('klineData', [
+            ['time' => '2025-03-22 06:00', 'open' => 30000, 'high' => 30100, 'low' => 29900, 'close' => 30050],
+            ['time' => '2025-03-22 06:15', 'open' => 30050, 'high' => 30200, 'low' => 30000, 'close' => 30150],
+            ['time' => '2025-03-22 06:30', 'open' => 30150, 'high' => 30300, 'low' => 30100, 'close' => 30200],
+        ]);
+        echo Template::instance()->render('chart.html');
     }
 
 

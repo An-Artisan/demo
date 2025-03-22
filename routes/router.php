@@ -74,7 +74,7 @@ $f3->route('GET /logout', function($f3) {
 //    ], 'app\Http\Controllers\Order\ChartController->showChart',[$f3, $params]);
 //});
 
-$f3->route('GET /show-chart', 'app\Http\Controllers\Order\ChartController->showChart');
+$f3->route('GET /chart', 'app\Http\Controllers\Order\ChartController->chart');
 
 
 //$f3->route('GET /users', 'app\Http\Controllers\User\UserController->index'); // 获取所有用户
