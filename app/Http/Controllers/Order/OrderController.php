@@ -22,11 +22,11 @@ class OrderController extends BaseController
         $userId = get_current_uid();
 //        $userId = 3;
         $pairId = $f3->get('POST.pair_id');
-        $type   = $f3->get('POST.type', TradeConstants::TYPE_LIMIT); // 使用常量 TradeConstants::TYPE_LIMIT 或 TradeConstants::TYPE_MARKET
-        $side   = $f3->get('POST.side', TradeConstants::SIDE_BUY); // 使用常量 TradeConstants::SIDE_BUY 或 TradeConstants::SIDE_SELL
-        $price  = $f3->get('POST.price'); // 限价单需要价格
+        $type = $f3->get('POST.type', TradeConstants::TYPE_LIMIT); // 使用常量 TradeConstants::TYPE_LIMIT 或 TradeConstants::TYPE_MARKET
+        $side = $f3->get('POST.side', TradeConstants::SIDE_BUY); // 使用常量 TradeConstants::SIDE_BUY 或 TradeConstants::SIDE_SELL
+        $price = $f3->get('POST.price'); // 限价单需要价格
         $amount = $f3->get('POST.amount');// 委托数量
-        if (!$userId){
+        if (!$userId) {
             $this->error(400, 'User not logged in');
             return;
         }
@@ -37,7 +37,7 @@ class OrderController extends BaseController
         }
 
         $TradingPairService = new TradingPairService();
-        $tradingPair      = $TradingPairService->findById($pairId);
+        $tradingPair = $TradingPairService->findById($pairId);
         if (!$tradingPair) {
             $this->error(400, 'Invalid trading pair');
             return;
@@ -52,7 +52,7 @@ class OrderController extends BaseController
         }
         // 创建并检查用户是否有足够的资产
         $userModel = new UserModel();
-        $user      = $userModel->findById($userId);
+        $user = $userModel->findById($userId);
         if (!$user) {
             $this->error(400, 'Invalid user');
             return;
@@ -88,23 +88,23 @@ class OrderController extends BaseController
                 return;
             }
             //市价卖出 用户基础币余额需小于委托数量
-            if ($side == TradeConstants::SIDE_SELL && $currency_base_balance < $amount ) {
+            if ($side == TradeConstants::SIDE_SELL && $currency_base_balance < $amount) {
                 $this->error(400, 'Insufficient amount to sell');
                 return;
             }
         }
         //创建订单
         $order = [
-            'user_id'    => $userId,
-            'pair_id'    => $pairId,
-            'type'       => $type,
-            'side'       => $side,
-            'price'      => $price,
-            'amount'     => $amount
+            'user_id' => $userId,
+            'pair_id' => $pairId,
+            'type' => $type,
+            'side' => $side,
+            'price' => $price,
+            'amount' => $amount
         ];
 
         $OrderService = new OrderService();
-        $order_id     = $OrderService->createOrder($order);
+        $order_id = $OrderService->createOrder($order);
 
         if ($order_id) {
             $this->success(['order_id' => $order_id], 'Order placed successfully');
@@ -120,40 +120,22 @@ class OrderController extends BaseController
     {
         // 获取用户ID
         $userId = get_current_uid();
-//        $userId = 1;
-        // 获取分页参数
-        $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
-        $limit  = $f3->get('GET.limit') ? (int)$f3->get('GET.limit') : 10;
-        $offset = ($page - 1) * $limit;
-
+        $pairId = $f3->get('GET.pair_id');
         // 查询用户当前委托（未完全成交的订单）
         $OrderService = new OrderService();
-        $orders     = $OrderService->findCurrentOrders($userId, $limit, $offset);
-
-        // 查询总记录数
-        $total = $OrderService->countCurrentOrders($userId);
-
-        // 格式化返回数据
-        $result = [
-            'list'       => [],
-            'pagination' => [
-                'page'        => $page,
-                'limit'       => $limit,
-                'total'       => $total,
-                'total_pages' => ceil($total / $limit)
-            ]
-        ];
+        $orders = $OrderService->findCurrentOrders($userId, $pairId);
+        $result = [];
         foreach ($orders as $order) {
-            $result['list'][] = [
-                'order_id'      => $order->order_id,
-                'pair_id'       => $order->pair_id,
-                'type'          => $order->type,
-                'side'          => $order->side,
-                'price'         => $order->price,
-                'amount'        => $order->amount,
+            $result[] = [
+                'order_id' => $order->order_id,
+                'pair_id' => $order->pair_id,
+                'type' => $order->type,
+                'side' => $order->side,
+                'price' => $order->price,
+                'amount' => $order->amount,
                 'filled_amount' => $order->filled_amount,
-                'status'        => $order->status,
-                'created_at'    => $order->created_at
+                'status' => $order->status,
+                'created_at' => $order->created_at
             ];
         }
 
@@ -170,12 +152,12 @@ class OrderController extends BaseController
 
         // 查询用户当前委托（未完全成交的订单）
         $OrderService = new OrderService();
-        $orders     = $OrderService->findCurrentOrdersAll($pairId, 10);
+        $orders = $OrderService->findCurrentOrdersAll($pairId, 10);
         $asks = [];
         $bids = [];
 
         foreach ($orders as $order) {
-            $price  = (string) $order->price;
+            $price = (string)$order->price;
             $amount = bcsub($order->amount, $order->filled_amount, 8);
 
             if ($amount <= 0) continue;
@@ -198,18 +180,18 @@ class OrderController extends BaseController
         $bidArr = [];
 
         foreach ($asks as $price => $amount) {
-            $askArr[] = [(string) $price, (string) $amount];
+            $askArr[] = [(string)$price, (string)$amount];
         }
         foreach ($bids as $price => $amount) {
-            $bidArr[] = [(string) $price, (string) $amount];
+            $bidArr[] = [(string)$price, (string)$amount];
         }
 
         // 返回数据结构
         $result = [
             'current' => time() . rand(100, 999),
-            'update'  => time() . rand(100, 999),
-            'asks'    => $askArr,
-            'bids'    => $bidArr
+            'update' => time() . rand(100, 999),
+            'asks' => $askArr,
+            'bids' => $bidArr
         ];
 
         $this->success($result);
@@ -220,12 +202,7 @@ class OrderController extends BaseController
     {
         // 获取用户ID
         $userId = get_current_uid();
-//        $userId = 1;
-
-        // 获取分页参数
-        $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
-        $limit  = $f3->get('GET.limit') ? (int)$f3->get('GET.limit') : 10;
-        $offset = ($page - 1) * $limit;
+        $pairId = $f3->get('GET.pair_id');
 
         // 获取排序参数（默认按创建时间倒序）
         $sortField = $f3->get('GET.sort_field') ?: 'created_at';
@@ -233,32 +210,20 @@ class OrderController extends BaseController
 
         // 查询用户历史委托
         $OrderService = new OrderService();
-        $orders     = $OrderService->findHistoryOrders($userId, $limit, $offset, $sortField, $sortOrder);
+        $orders = $OrderService->findHistoryOrders($userId, $pairId, $sortField, $sortOrder);
 
-        // 查询总记录数
-        $total = $OrderService->countHistoryOrders($userId);
-
-        // 格式化返回数据
-        $result = [
-            'list'       => [],
-            'pagination' => [
-                'page'        => $page,
-                'limit'       => $limit,
-                'total'       => $total,
-                'total_pages' => ceil($total / $limit)
-            ]
-        ];
+        $result = [];
         foreach ($orders as $order) {
-            $result['list'][] = [
-                'order_id'      => $order->order_id,
-                'pair_id'       => $order->pair_id,
-                'type'          => $order->type,
-                'side'          => $order->side,
-                'price'         => $order->price,
-                'amount'        => $order->amount,
+            $result[] = [
+                'order_id' => $order->order_id,
+                'pair_id' => $order->pair_id,
+                'type' => $order->type,
+                'side' => $order->side,
+                'price' => $order->price,
+                'amount' => $order->amount,
                 'filled_amount' => $order->filled_amount,
-                'status'        => $order->status,
-                'created_at'    => $order->created_at
+                'status' => $order->status,
+                'created_at' => $order->created_at
             ];
         }
 
@@ -271,46 +236,29 @@ class OrderController extends BaseController
     public function getFilledOrderList($f3)
     {
         // 获取用户ID
-//        $userId = get_current_uid();
-        $userId = 1;
-
-        // 获取分页参数
-        $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
-        $limit  = $f3->get('GET.limit') ? (int)$f3->get('GET.limit') : 10;
-        $offset = ($page - 1) * $limit;
+        $userId = get_current_uid();
+        $pairId = $f3->get('GET.pair_id');
 
         // 获取排序参数（默认按成交时间倒序）
-        $sortField = $f3->get('GET.sort_field') ?: 'updated_at';
+        $sortField = $f3->get('GET.sort_field') ?: 'created_at';
         $sortOrder = $f3->get('GET.sort_order') ?: 'DESC';
 
         // 查询用户成交记录
         $OrderService = new OrderService();
-        $orders     = $OrderService->findFilledOrders($userId, $limit, $offset, $sortField, $sortOrder);
-        // 查询总记录数
-        $total = $OrderService->countFilledOrders($userId);
-
-        // 格式化返回数据
-        $result = [
-            'list'       => [],
-            'pagination' => [
-                'page'        => $page,
-                'limit'       => $limit,
-                'total'       => $total,
-                'total_pages' => ceil($total / $limit)
-            ]
-        ];
+        $orders = $OrderService->findFilledOrders($userId, $pairId, $sortField, $sortOrder);
+        $result = [];
         foreach ($orders as $order) {
-            $result['list'][] = [
-                'order_id'      => $order->order_id,
-                'pair_id'       => $order->pair_id,
-                'type'          => $order->type,
-                'side'          => $order->side,
-                'price'         => $order->price,
-                'amount'        => $order->amount,
-                'filled_amount' => $order->filled_amount,
-                'status'        => $order->status,
-                'created_at'    => $order->created_at,
-                'updated_at'    => $order->updated_at
+            $result[] = [
+                'order_id'      => $order['order_id'],
+                'pair_id'       => $order['pair_id'],
+                'type'          => $order['type'],
+                'side'          => $order['side'],
+                'price'         => $order['price'],
+                'amount'        => $order['amount'],
+                'filled_amount' => $order['filled_amount'],
+                'status'        => TradeConstants::STATUS_FILLED,
+                'created_at'    => $order['created_at'],
+                'updated_at'    => $order['updated_at']
             ];
         }
 
@@ -324,16 +272,16 @@ class OrderController extends BaseController
         $pairId = $f3->get('GET.pair_id');
 
         $tradeService = new OrderService();
-        $trades = $tradeService->getRecentTradesByPair($pairId, 10);
+        $trades = $tradeService->getRecentTradesByPair($pairId, 5);
 
         $result = [];
         foreach ($trades as $trade) {
             $result[] = [
-                'trade_id'       => $trade['trade_id'],
-                'price'          => $trade['price'],
-                'amount'         => $trade['amount'],
-                'fee'            => $trade['fee'],
-                'created_at'     => $trade['created_at'],
+                'trade_id' => $trade['trade_id'],
+                'price' => $trade['price'],
+                'amount' => $trade['amount'],
+                'fee' => $trade['fee'],
+                'created_at' => $trade['created_at'],
             ];
         }
 

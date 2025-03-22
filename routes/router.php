@@ -34,8 +34,9 @@ $f3->route('GET /users', function($f3, $params) {
     ], 'app\Http\Controllers\User\UserController->index',[$f3, $params]);
 }); // 获取所有用户
 
-
+// API数据
 $f3->route('GET /users/get-balance', 'app\Http\Controllers\User\UserController->getBalance');
+// 本地数据
 $f3->route('GET /users/get-balance-local', 'app\Http\Controllers\User\UserController->getBalanceLocal');
 
 # 登录

@@ -237,8 +237,25 @@
         <button onclick="loadTab('history')">委托历史</button>
         <button onclick="loadTab('trades')">成交记录</button>
     </div>
-    <div class="tab-content">
-        <table id="tabTable"></table>
+
+    <!-- 当前委托表格 -->
+    <div id="tab-content">
+        <table id="currentOrdersTable">
+            <thead>
+            <tr>
+                <th>订单ID</th>
+                <th>交易对</th>
+                <th>类型</th>
+                <th>方向</th>
+                <th>价格</th>
+                <th>数量</th>
+                <th>已成交</th>
+                <th>状态</th>
+                <th>时间</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>
 
@@ -377,7 +394,117 @@
         });
     }
 
+    function fetchCurrentOrders(base) {
+        axios.get(`http://localhost:8888/order/get-current-order-list?pair_id=${base}`).then(res => {
+            const tbody = document.querySelector('#currentOrdersTable tbody');
+            tbody.innerHTML = '';
 
+            const orderList = res.data.data; // 数据结构是数组了
+
+            if (res.data.code === 200 && Array.isArray(orderList) && orderList.length > 0) {
+                orderList.forEach(order => {
+                    const typeText = order.type === 0 ? '限价' : '市价';
+                    const sideText = order.side === 0 ? '买入' : '卖出';
+                    const statusMap = {
+                        0: '未成交',
+                        1: '部分成交',
+                        2: '已成交',
+                        3: '已取消'
+                    };
+                    const statusText = statusMap[order.status] || '未知';
+
+                    tbody.innerHTML += `
+                <tr>
+                    <td>${order.order_id}</td>
+                    <td>${order.pair_id}</td>
+                    <td>${typeText}</td>
+                    <td>${sideText}</td>
+                    <td>${order.price}</td>
+                    <td>${order.amount}</td>
+                    <td>${order.filled_amount}</td>
+                    <td>${statusText}</td>
+                    <td>${order.created_at}</td>
+                </tr>`;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">暂无当前委托</td></tr>';
+            }
+        });
+    }
+    function fetchHistoryOrders(base) {
+        axios.get(`http://localhost:8888/order/get-history-order-list?pair_id=${base}`).then(res => {
+            const tbody = document.querySelector('#currentOrdersTable tbody');
+            tbody.innerHTML = '';
+
+            const orderList = res.data.data; // 数据结构是数组了
+
+            if (res.data.code === 200 && Array.isArray(orderList) && orderList.length > 0) {
+                orderList.forEach(order => {
+                    const typeText = order.type === 0 ? '限价' : '市价';
+                    const sideText = order.side === 0 ? '买入' : '卖出';
+                    const statusMap = {
+                        0: '未成交',
+                        1: '部分成交',
+                        2: '已成交',
+                        3: '已取消'
+                    };
+                    const statusText = statusMap[order.status] || '未知';
+
+                    tbody.innerHTML += `
+                <tr>
+                    <td>${order.order_id}</td>
+                    <td>${order.pair_id}</td>
+                    <td>${typeText}</td>
+                    <td>${sideText}</td>
+                    <td>${order.price}</td>
+                    <td>${order.amount}</td>
+                    <td>${order.filled_amount}</td>
+                    <td>${statusText}</td>
+                    <td>${order.created_at}</td>
+                </tr>`;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">暂无当前委托</td></tr>';
+            }
+        });
+    }
+    function fetchTradeRecords(base) {
+        axios.get(`http://localhost:8888/order/get-filled-order-list?pair_id=${base}`).then(res => {
+            const tbody = document.querySelector('#currentOrdersTable tbody');
+            tbody.innerHTML = '';
+
+            const orderList = res.data.data; // 数据结构是数组了
+
+            if (res.data.code === 200 && Array.isArray(orderList) && orderList.length > 0) {
+                orderList.forEach(order => {
+                    const typeText = order.type === 0 ? '限价' : '市价';
+                    const sideText = order.side === 0 ? '买入' : '卖出';
+                    const statusMap = {
+                        0: '未成交',
+                        1: '部分成交',
+                        2: '已成交',
+                        3: '已取消'
+                    };
+                    const statusText = statusMap[order.status] || '未知';
+
+                    tbody.innerHTML += `
+                <tr>
+                    <td>${order.order_id}</td>
+                    <td>${order.pair_id}</td>
+                    <td>${typeText}</td>
+                    <td>${sideText}</td>
+                    <td>${order.price}</td>
+                    <td>${order.amount}</td>
+                    <td>${order.filled_amount}</td>
+                    <td>${statusText}</td>
+                    <td>${order.created_at}</td>
+                </tr>`;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">暂无当前委托</td></tr>';
+            }
+        });
+    }
     function fetchAssetData(base) {
         axios.get(`http://localhost:8888/users/get-balance?currency=${base}`).then(res => {
             if (res.data.code === 200) {
@@ -457,6 +584,7 @@
 
 
     function updatePage(coinKey) {
+        currentCoin = coinKey;
         document.getElementById('amountInput').placeholder = `数量（${coinKey}）`;
         fetchMarketInfo(coinKey);
         fetchKlineData(coinKey);
@@ -465,6 +593,9 @@
         fetchAssetData(coinKey);
         fetchAssetDataLocal(coinKey);
         fetchLatestTrades(`${coinKey}_USDT`); // 新增调用最新成交记录
+        fetchCurrentOrders(`${coinKey}_USDT`);
+        // fetchHistoryOrders(`${coinKey}_USDT`);
+        // fetchTradeRecords(`${coinKey}_USDT`);
     }
 
     function renderKline(klineData) {
@@ -494,8 +625,14 @@
         alert('模拟下单成功');
     }
 
-    function loadTab(tab) {
-        currentTab = tab;
+    function loadTab(tabName) {
+        if (tabName === 'current') {
+            fetchCurrentOrders(`${currentCoin}_USDT`);
+        } else if (tabName === 'history') {
+            fetchHistoryOrders(`${currentCoin}_USDT`);
+        } else if (tabName === 'trades') {
+            fetchTradeRecords(`${currentCoin}_USDT`)
+        }
     }
 
     document.getElementById('coinPairSelect').addEventListener('change', function () {

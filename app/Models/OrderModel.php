@@ -56,15 +56,15 @@ class OrderModel extends \DB\SQL\Mapper {
     }
 
     // 查询用户当前委托（带分页）
-    public function findCurrentOrders($userId, $limit, $offset) {
+    public function findCurrentOrders($userId, $pairId) {
         return $this->find([
-            'user_id = ? AND status IN (?, ?) LIMIT ? OFFSET ?',
+            'user_id = ? AND status IN (?, ?) AND pair_id = ?',
             $userId,
             TradeConstants::STATUS_PENDING,
             TradeConstants::STATUS_PARTIAL,
-            $limit,
-            $offset
+            $pairId,
         ]);
+
     }
 
     public function findCurrentOrdersAll($pairId,$limit) {
@@ -88,14 +88,13 @@ class OrderModel extends \DB\SQL\Mapper {
     }
 
     // 查询用户历史委托（带分页和排序）
-    public function findHistoryOrders($userId, $limit, $offset, $sortField, $sortOrder) {
+    public function findHistoryOrders($userId, $pairId, $sortField, $sortOrder) {
         return $this->find([
-            'user_id = ? ORDER BY ? ? LIMIT ? OFFSET ?',
+            'user_id = ? AND pair_id = ? ORDER BY ? ? ',
             $userId,
+            $pairId,
             $sortField,
             $sortOrder,
-            $limit,
-            $offset
         ]);
     }
 
@@ -107,19 +106,30 @@ class OrderModel extends \DB\SQL\Mapper {
         ]);
     }
 
-    // 查询用户成交记录（带分页和排序）
-    public function findFilledOrders($userId, $limit, $offset, $sortField, $sortOrder) {
-        return $this->find([
-            'user_id = ? AND status = ? ORDER BY ? ? LIMIT ? OFFSET ?',
-            $userId,
-            TradeConstants::STATUS_FILLED,
-            $sortField,
-            $sortOrder,
-            $limit,
-            $offset
-        ]);
-    }
+    // 查询用户成交记录（从 trades 联表 order 获取完整订单信息）
+    public function findFilledOrders($userId, $pairId, $sortField = 'created_at', $sortOrder = 'DESC') {
 
+        $sql = "
+        SELECT 
+            o.order_id, 
+            o.pair_id, 
+            o.type, 
+            o.side, 
+            t.price, 
+            t.amount, 
+            o.filled_amount, 
+            o.status, 
+            t.created_at
+        FROM trades t
+        JOIN orders o 
+            ON t.taker_order_id = o.order_id OR t.maker_order_id = o.order_id
+        WHERE o.user_id = ? AND o.pair_id = ?
+        ORDER BY t." . $sortField . " " . $sortOrder;
+
+        $result = $this->db->exec($sql, [$userId, $pairId]);
+
+        return $result;
+    }
     // 查询用户成交记录的总记录数
     public function countFilledOrders($userId) {
         return $this->count([

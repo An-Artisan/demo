@@ -35,7 +35,6 @@ class UserController
 
         // 获取当前用户 ID
         $userId = get_current_uid();
-        $userId = 1;
         // 调用 Service 获取 balance 数据
         $UserBalanceService = new \app\Services\UserService();
         $balanceData = $UserBalanceService->getUserBalance($userId);
@@ -49,7 +48,6 @@ class UserController
                 return $item['currency'] === $currency;
             }));
         }
-
         // 返回结果
         $this->success($balance);
     }
