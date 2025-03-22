@@ -10,7 +10,8 @@
     "ext-openssl": "*",
     "ext-pdo": "*",
     "gateio/gateapi-php": "^6.94",
-    "symfony/var-dumper": "^4.4"
+    "symfony/var-dumper": "^4.4",
+    "ext-bcmath": "*"
   },
   "autoload": {
     "psr-4": {
