@@ -178,6 +178,60 @@ class OrderController extends BaseController
         $this->success($result);
     }
 
+    public function getCurrentOrderListLocal($f3)
+    {
+        $pairId = $f3->get('GET.pair_id');
+
+        // 获取用户ID
+        $userId = get_current_uid();
+
+        // 查询用户当前委托（未完全成交的订单）
+        $OrderService = new OrderService();
+        $orders     = $OrderService->findCurrentOrdersAll($pairId, 10);
+        $asks = [];
+        $bids = [];
+
+        foreach ($orders as $order) {
+            $price  = (string) $order->price;
+            $amount = bcsub($order->amount, $order->filled_amount, 8);
+
+            if ($amount <= 0) continue;
+
+            if ($order->side == 1) {
+                // 卖出 -> ask
+                $asks[$price] = isset($asks[$price]) ? bcadd($asks[$price], $amount, 8) : $amount;
+            } else {
+                // 买入 -> bid
+                $bids[$price] = isset($bids[$price]) ? bcadd($bids[$price], $amount, 8) : $amount;
+            }
+        }
+
+        // 排序价格
+        ksort($asks, SORT_NUMERIC);       // 卖单从低到高
+        krsort($bids, SORT_NUMERIC);      // 买单从高到低
+
+        // 转换为数组格式
+        $askArr = [];
+        $bidArr = [];
+
+        foreach ($asks as $price => $amount) {
+            $askArr[] = [(string) $price, (string) $amount];
+        }
+        foreach ($bids as $price => $amount) {
+            $bidArr[] = [(string) $price, (string) $amount];
+        }
+
+        // 返回数据结构
+        $result = [
+            'current' => time() . rand(100, 999),
+            'update'  => time() . rand(100, 999),
+            'asks'    => $askArr,
+            'bids'    => $bidArr
+        ];
+
+        $this->success($result);
+    }
+
     // 获取用户历史委托列表
     public function getHistoryOrderList($f3)
     {

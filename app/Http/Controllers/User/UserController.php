@@ -29,6 +29,32 @@ class UserController
         $this->success($data);
     }
 
+    public function getBalanceLocal($f3)
+    {
+        $currency = $f3->get('GET.currency');
+
+        // 获取当前用户 ID
+        $userId = get_current_uid();
+        $userId = 1;
+        // 调用 Service 获取 balance 数据
+        $UserBalanceService = new \app\Services\UserService();
+        $balanceData = $UserBalanceService->getUserBalance($userId);
+
+        // 解析 balance 字段（JSON）
+        $balance = json_decode($balanceData['balance'], true);
+
+        // 过滤 spot 币种（如果传入 currency）
+        if ($currency && isset($balance['spot']) && is_array($balance['spot'])) {
+            $balance['spot'] = array_values(array_filter($balance['spot'], function ($item) use ($currency) {
+                return $item['currency'] === $currency;
+            }));
+        }
+
+        // 返回结果
+        $this->success($balance);
+    }
+
+
 
 
     public function index($f3)

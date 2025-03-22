@@ -67,6 +67,16 @@ class OrderModel extends \DB\SQL\Mapper {
         ]);
     }
 
+    public function findCurrentOrdersAll($pairId,$limit) {
+        return $this->find([
+            ' status IN (?, ?) and pair_id = ? ORDER BY `created_at` desc LIMIT ? ',
+            TradeConstants::STATUS_PENDING,
+            TradeConstants::STATUS_PARTIAL,
+            $pairId,
+            $limit,
+        ]);
+    }
+
     // 查询用户当前委托的总记录数
     public function countCurrentOrders($userId) {
         return $this->count([

@@ -42,4 +42,10 @@ class UserService {
     public function deleteUser($id) {
         return $this->userModel->deleteUser($id);
     }
+
+    public function getUserBalance($userId)
+    {
+        return $this->userModel->findByUserId($userId);
+    }
+
 }
