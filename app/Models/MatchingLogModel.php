@@ -8,7 +8,7 @@ use Base;
 class MatchingLogModel extends \DB\SQL\Mapper
 {
     public function __construct() {
-        parent::__construct(Base::instance()->get('DB'), 'matching_logs');
+        parent::__construct(db(), 'matching_logs');
     }
 
     // 根据日志ID查找日志记录

@@ -3,78 +3,89 @@ namespace app\Services;
 
 use App\Constants\TradeConstants;
 use App\Models\AssetLedgerModel;
-use App\Models\Base;
-use App\Models\Exception;
 use App\Models\OrderModel;
 use App\Models\TradeModel;
 use App\Models\TradingPairModel;
 
 class MatchingEngineService {
     // 撮合订单
+    /**
+     * @throws \Exception
+     */
     public function matchOrders($pairId) {
-        $db = Base::instance()->get('DB');
+        $db = db();
         $orderModel = new OrderModel();
         $tradeModel = new TradeModel();
         $assetLedgerModel = new AssetLedgerModel();
 
         try {
-            // 开启事务
             $db->begin();
 
-            // 获取未成交的买单和卖单
             $buyOrders = $orderModel->find(['pair_id = ? AND side = ? AND status = ?', $pairId, TradeConstants::SIDE_BUY, TradeConstants::STATUS_PENDING]);
             $sellOrders = $orderModel->find(['pair_id = ? AND side = ? AND status = ?', $pairId, TradeConstants::SIDE_SELL, TradeConstants::STATUS_PENDING]);
 
-            // 撮合逻辑
             foreach ($buyOrders as $buyOrder) {
                 foreach ($sellOrders as $sellOrder) {
-                    // 检查价格是否匹配（限价单）
-                    if ($buyOrder->price >= $sellOrder->price) {
-                        // 计算成交数量
-                        $tradeAmount = min($buyOrder->amount - $buyOrder->filled_amount, $sellOrder->amount - $sellOrder->filled_amount);
+                    if (bccomp($buyOrder->price, $sellOrder->price, 8) >= 0) {
+                        $buyRemain = bcsub($buyOrder->amount, $buyOrder->filled_amount, 8);
+                        $sellRemain = bcsub($sellOrder->amount, $sellOrder->filled_amount, 8);
+                        $tradeAmount = bccomp($buyRemain, $sellRemain, 8) <= 0 ? $buyRemain : $sellRemain;
 
-                        // 更新订单状态
-                        $buyOrder->filled_amount += $tradeAmount;
-                        $sellOrder->filled_amount += $tradeAmount;
-                        if ($buyOrder->filled_amount >= $buyOrder->amount) {
-                            $buyOrder->status = TradeConstants::STATUS_FILLED; // 完全成交
+                        $buyOrder->filled_amount = bcadd($buyOrder->filled_amount, $tradeAmount, 8);
+                        $sellOrder->filled_amount = bcadd($sellOrder->filled_amount, $tradeAmount, 8);
+
+                        if (bccomp($buyOrder->filled_amount, $buyOrder->amount, 8) >= 0) {
+                            $buyOrder->status = TradeConstants::STATUS_FILLED;
                         }
-                        if ($sellOrder->filled_amount >= $sellOrder->amount) {
-                            $sellOrder->status = TradeConstants::STATUS_FILLED; // 完全成交
+                        if (bccomp($sellOrder->filled_amount, $sellOrder->amount, 8) >= 0) {
+                            $sellOrder->status = TradeConstants::STATUS_FILLED;
                         }
+
                         $buyOrder->save();
                         $sellOrder->save();
 
-                        // 创建交易记录
-                        $tradeModel->createTrade($buyOrder->order_id, $sellOrder->order_id, $pairId, $sellOrder->price, $tradeAmount, 0);
+                        $tradeModel->createTrade(
+                            $buyOrder->order_id,
+                            $sellOrder->order_id,
+                            $pairId,
+                            $sellOrder->price,
+                            $tradeAmount,
+                            0
+                        );
 
-                        // 更新用户资产
-                        $this->updateUserAssets($buyOrder->user_id, $sellOrder->user_id, $pairId, $tradeAmount, $sellOrder->price);
+                        $this->updateUserAssets(
+                            $buyOrder->user_id,
+                            $sellOrder->user_id,
+                            $pairId,
+                            $tradeAmount,
+                            $sellOrder->price
+                        );
                     }
                 }
             }
 
-            // 提交事务
             $db->commit();
-        } catch (Exception $e) {
-            // 回滚事务
+        } catch (\Exception $e) {
             $db->rollback();
-            throw $e; // 抛出异常以便上层处理
+            throw $e;
         }
     }
 
-    // 更新用户资产
     private function updateUserAssets($buyerId, $sellerId, $pairId, $amount, $price) {
         $assetLedgerModel = new AssetLedgerModel();
         $tradingPairModel = new TradingPairModel();
         $pair = $tradingPairModel->findById($pairId);
 
-        // 买家减少计价货币，增加基础货币
-        $assetLedgerModel->createLedger($buyerId, $pair->quote_currency, -($amount * $price), 2);
+        $totalQuote = bcmul($amount, $price, 8);
+        $negAmount = bcmul($amount, '-1', 8);
+        $negQuote = bcmul($totalQuote, '-1', 8);
+
+        // 买家
+        $assetLedgerModel->createLedger($buyerId, $pair->quote_currency, $negQuote, 2);
         $assetLedgerModel->createLedger($buyerId, $pair->base_currency, $amount, 2);
 
-        // 卖家增加计价货币，减少基础货币
-        $assetLedgerModel->createLedger($sellerId, $pair->quote_currency, $amount * $price, 2);
-        $assetLedgerModel->createLedger($sellerId, $pair->base_currency, -$amount, 2);
+        // 卖家
+        $assetLedgerModel->createLedger($sellerId, $pair->quote_currency, $totalQuote, 2);
+        $assetLedgerModel->createLedger($sellerId, $pair->base_currency, $negAmount, 2);
     }
 }

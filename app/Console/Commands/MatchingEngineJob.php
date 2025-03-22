@@ -5,7 +5,7 @@ use app\Services\MatchingEngineService;
 
 class MatchingEngineJob {
 
-    // php artisan.php MatchingEngineJob run
+    // php artisan MatchingEngineJob run
     protected $f3;
 
     public function __construct($f3) {

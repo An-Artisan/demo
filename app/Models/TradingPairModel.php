@@ -12,7 +12,7 @@ class TradingPairModel extends \DB\SQL\Mapper
     protected $table = 'trading_pairs';
     public function __construct()
     {
-        parent::__construct(Base::instance()->get('DB'), $this->table);
+        parent::__construct(db(), $this->table);
     }
 
     // 根据交易对ID查找交易对

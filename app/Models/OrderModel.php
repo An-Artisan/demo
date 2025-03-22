@@ -10,7 +10,7 @@ class OrderModel extends \DB\SQL\Mapper {
     protected $table = 'orders';
 
     public function __construct() {
-        parent::__construct(Base::instance()->get('DB'), $this->table);
+        parent::__construct(db(), $this->table);
     }
 
     // 根据订单ID查找订单

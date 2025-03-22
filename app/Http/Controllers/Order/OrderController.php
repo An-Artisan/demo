@@ -18,7 +18,6 @@ class OrderController extends BaseController
     // 用户提交订单
     public function createOrder($f3)
     {
-        // 获取用户输入
         $userId = get_current_uid();
         $body = json_decode($f3->get('BODY'), true);
         $pairId = $body['pair_id'] ?? 'BTC_USDT';
@@ -26,11 +25,12 @@ class OrderController extends BaseController
         $side = $body['side'] ?? 0;
         $price = $body['price'] ?? 0;
         $amount = $body['amount'] ?? 0;
+
         if (!$userId) {
             $this->error(400, 'User not logged in');
             return;
         }
-        // 验证输入
+
         if (!$pairId) {
             $this->error(400, 'Invalid input pairId');
             return;
@@ -42,15 +42,17 @@ class OrderController extends BaseController
             $this->error(400, 'Invalid trading pair');
             return;
         }
-        if ($type == TradeConstants::TYPE_LIMIT && $price <= 0) {
+
+        if ($type == TradeConstants::TYPE_LIMIT && bccomp($price, 0, 8) <= 0) {
             $this->error(400, 'Invalid price');
             return;
         }
-        if ($amount <= 0) {
+
+        if (bccomp($amount, 0, 8) <= 0) {
             $this->error(400, 'Invalid amount');
             return;
         }
-        // 创建并检查用户是否有足够的资产
+
         $userModel = new UserModel();
         $user = $userModel->findById($userId);
         if (!$user) {
@@ -58,59 +60,44 @@ class OrderController extends BaseController
             return;
         }
 
-        //拆解交易对
         $tradingPair = explode('_', $pairId);
         $tradingPair = array_map('strtolower', $tradingPair);
         $currency_base_balance = 0;
         $currency_quote_balance = 0;
 
-
         $balance = get_object_vars(json_decode($user['balance']));
         if ($balance['spot']) {
-            foreach($balance['spot'] as $value) {
-                $tmp_balance =get_object_vars($value);
-
+            foreach ($balance['spot'] as $value) {
+                $tmp_balance = get_object_vars($value);
                 if (strtolower($tmp_balance['currency']) == $tradingPair[0]) {
-                    $currency_base_balance = $tmp_balance['available']; //交易对的基础币余额
+                    $currency_base_balance = $tmp_balance['available'];
                 }
-
                 if (strtolower($tmp_balance['currency']) == $tradingPair[1]) {
-                    $currency_quote_balance = $tmp_balance['available'];//交易对的计价币余额
+                    $currency_quote_balance = $tmp_balance['available'];
                 }
             }
         }
 
-//        var_dump($currency_base_balance);
-//        var_dump($currency_quote_balance);
-//        exit;
-
-        //检查余额是否足够 限价单
         if ($type == TradeConstants::TYPE_LIMIT) {
-
-            //限价买入 计价币余额必须大于等于 委托数量 * 价格
-            if ($side == TradeConstants::SIDE_BUY && $currency_quote_balance < $amount * $price) {
+            if ($side == TradeConstants::SIDE_BUY && bccomp($currency_quote_balance, bcmul($amount, $price, 8), 8) < 0) {
                 $this->error(400, 'Insufficient balance');
                 return;
             }
-            //限价卖出 基础币余额必须大于等于 委托数量
-            if ($side == TradeConstants::SIDE_SELL && $currency_base_balance < $amount) {
+            if ($side == TradeConstants::SIDE_SELL && bccomp($currency_base_balance, $amount, 8) < 0) {
                 $this->error(400, 'Insufficient amount to sell');
                 return;
             }
         } else {
-            //检查余额是否足够 市价单
-            //市价买入 用户计价币余额小于等于0返回异常
-            if ($side == TradeConstants::SIDE_BUY && $currency_quote_balance <= 0) {
+            if ($side == TradeConstants::SIDE_BUY && bccomp($currency_quote_balance, 0, 8) <= 0) {
                 $this->error(400, 'Insufficient balance');
                 return;
             }
-            //市价卖出 用户基础币余额需小于委托数量
-            if ($side == TradeConstants::SIDE_SELL && $currency_base_balance < $amount) {
+            if ($side == TradeConstants::SIDE_SELL && bccomp($currency_base_balance, $amount, 8) < 0) {
                 $this->error(400, 'Insufficient amount to sell');
                 return;
             }
         }
-        //创建订单
+
         $order = [
             'user_id' => $userId,
             'pair_id' => $pairId,
@@ -128,10 +115,7 @@ class OrderController extends BaseController
         } else {
             $this->error(500, 'Failed to place order');
         }
-
-
     }
-
     // 获取用户当前委托列表（带分页）
     public function getCurrentOrderList($f3)
     {

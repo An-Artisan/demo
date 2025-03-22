@@ -4,7 +4,7 @@ namespace app\Models;
 use Base;
 class TradeModel extends \DB\SQL\Mapper {
     public function __construct() {
-        parent::__construct(Base::instance()->get('DB'), 'trades');
+        parent::__construct(db(), 'trades');
     }
 
     // 根据交易ID查找交易记录
