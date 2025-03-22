@@ -69,6 +69,32 @@ class GateClient
         }
     }
 
+    /**
+     * 现货余额
+     * @param array $currency
+     * @return array
+     * @author liuqiang
+     * @email  liuqiang@smzdm.com
+     * @since  2025年03月22日18:44
+     */
+    public function getSpotBalances(array $currency = []): array
+    {
+        try {
+            // 如果提供了 currency 参数则传入，否则调用全部币种
+            $balances = $this->spotApi->listSpotAccounts($currency );
+
+            $result = [];
+            foreach ($balances as $item) {
+                // 统一转为数组格式
+                $row = ObjectSerializer::sanitizeForSerialization($item);
+                $result[] = get_object_vars($row);
+            }
+
+            return $result;
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
 
     /**
      * 获取所有现货交易对

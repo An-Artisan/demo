@@ -28,4 +28,13 @@ class OrderService
         // 返回订单ID
         return $orderId;
     }
+
+    /**
+     * 获取某币种（交易对）下最近成交的N条记录
+     */
+    public function getRecentTradesByPair($pairId, $limit = 10)
+    {
+        return $this->OrderModel->findRecentByPair($pairId, $limit);
+    }
+
 }

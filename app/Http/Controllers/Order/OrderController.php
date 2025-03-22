@@ -242,6 +242,28 @@ class OrderController extends BaseController
         $this->success($result);
     }
 
+    public function getLatestTrades($f3)
+    {
+        // 获取币种（交易对）参数，例如 BTC_USDT
+        $pairId = $f3->get('GET.pair_id');
+
+        $tradeService = new OrderService();
+        $trades = $tradeService->getRecentTradesByPair($pairId, 10);
+
+        $result = [];
+        foreach ($trades as $trade) {
+            $result[] = [
+                'trade_id'       => $trade['trade_id'],
+                'price'          => $trade['price'],
+                'amount'         => $trade['amount'],
+                'fee'            => $trade['fee'],
+                'created_at'     => $trade['created_at'],
+            ];
+        }
+
+        $this->success(['list' => $result]);
+    }
+
 }
 
 

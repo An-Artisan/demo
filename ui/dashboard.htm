@@ -54,7 +54,12 @@
         </div>
         <div class="panel">
             <h3>最新成交</h3>
-            <table id="tradeTable"></table>
+            <table id="tradeTable">
+                <thead>
+                <tr><th>时间</th><th>价格</th><th>数量</th><th>手续费</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
     <div class="panel-wrap">
@@ -74,7 +79,11 @@
         </div>
         <div class="panel">
             <h3>资产</h3>
-            <table id="assetTable"></table>
+            <div class="total-assets" id="totalAsset"></div> <!-- ✅ 总资产展示 -->
+            <table id="assetTable">
+                <thead><tr><th>账户类型</th><th>金额</th><th>币种</th></tr></thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
     <div class="tabs">
@@ -168,13 +177,69 @@
             });
     }
 
+    function fetchLatestTrades(pairId) {
+        axios.get(`http://localhost:8000/order/get-latest-trades?pair_id=${pairId}`).then(res => {
+            if (res.data.code === 200) {
+                const list = res.data.data.list;
+                const table = document.querySelector('#tradeTable tbody');
+                table.innerHTML = '';
+                list.forEach(trade => {
+                    table.innerHTML += `<tr>
+                    <td>${trade.created_at}</td>
+                    <td>${trade.price}</td>
+                    <td>${trade.amount}</td>
+                    <td>${trade.fee}</td>
+                </tr>`;
+                });
+            }
+        });
+    }
+
+    function fetchAssetData(base) {
+        axios.get(`http://localhost:8000/users/get-balance?currency=${base}`).then(res => {
+            if (res.data.code === 200) {
+                const data = res.data.data;
+                const total = data.total;
+                const details = data.details;
+
+                // ✅ 总资产展示
+                document.getElementById('totalAsset').innerText = `总资产：${total.amount} ${total.currency}`;
+
+                // ✅ 分账户展示（只展示金额 > 0）
+                const tbody = document.querySelector('#assetTable tbody');
+                tbody.innerHTML = '';
+                for (let type in details) {
+                    const row = details[type];
+                    if (parseFloat(row.amount) > 0) {
+                        let label = type;
+                        if (type === 'finance') label = '金融余额';
+                        else if (type === 'futures') label = '合约余额';
+                        else if (type === 'spot') label = '现货余额';
+                        tbody.innerHTML += `<tr><td>${label}</td><td>${row.amount}</td><td>${row.currency}</td></tr>`;
+                    }
+                }
+
+                // ✅ 当前币种现货账户详情（如 BTC）
+                if (data.spot && Array.isArray(data.spot)) {
+                    const token = data.spot.find(item => item.currency === base.toUpperCase());
+                    if (token) {
+                        tbody.innerHTML += `<tr><td>${token.currency} 可用余额</td><td>${token.available}</td><td>${token.currency}</td></tr>`;
+                        tbody.innerHTML += `<tr><td>${token.currency} 锁定余额</td><td>${token.locked}</td><td>${token.currency}</td></tr>`;
+                    }
+                }
+            }
+        });
+    }
+
+
 
     function updatePage(coinKey) {
         document.getElementById('amountInput').placeholder = `数量（${coinKey}）`;
         fetchMarketInfo(coinKey);
         fetchKlineData(coinKey);
         fetchOrderBook(coinKey);
-
+        fetchAssetData(coinKey);
+        fetchLatestTrades(`${coinKey}_USDT`); // 新增调用最新成交记录
     }
 
     function renderKline(klineData) {
