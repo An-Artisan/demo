@@ -7,7 +7,7 @@ use app\Services\UserService;
 
 class CleanTradingPairJob {
 
-    // php artisan.php TestJob run
+    // php artisan.php CleanTradingPairJob run
     protected $f3;
 
     public function __construct($f3) {
@@ -29,7 +29,7 @@ class CleanTradingPairJob {
             $TradingPairService->saveOrUpdate($pair);
         }
         }
-        logger()->write($users, 'info');
+        logger()->write($pairs, 'info');
         echo "运行 CleanTradingPairJob::run 成功  \n";
     }
 

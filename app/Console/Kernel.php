@@ -1,4 +1,5 @@
 <?php
+
 namespace app\Console;
 
 use lib\schedule\ScheduledTask;
@@ -7,15 +8,19 @@ use lib\schedule\ScheduledTask;
 //crontab -e 配置  /usr/local/opt/php@7.1/bin/php /Users/artisan/PHP/demo/artisan schedule:run
 //  /usr/local/opt/php@7.1/bin/php /Users/artisan/PHP/demo/artisan 修改自己的php目录和项目目录
 
-class Kernel {
-    public function commands(): array {
+class Kernel
+{
+    public function commands(): array
+    {
         return [
-            'TestJob' => \app\Console\Commands\TestJob::class,
+            'TestJob'             => \app\Console\Commands\TestJob::class,
             'CleanTradingPairJob' => \app\Console\Commands\CleanTradingPairJob::class,
+            'MatchingEngineJob'   => \app\Console\Commands\MatchingEngineJob::class,
         ];
     }
 
-    public function schedule() {
+    public function schedule()
+    {
         $tasks = [
 //            (new ScheduledTask('TestJob', 'run'))->everyMinute(),
             (new ScheduledTask('TestJob', 'run'))->dailyAt('03:00'),

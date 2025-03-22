@@ -98,7 +98,7 @@ class OrderController extends BaseController
     public function getCurrentOrders($f3)
     {
         // 获取用户ID
-        $userId = $f3->get('PARAMS.user_id');
+        $userId = get_current_user_id();
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
@@ -144,7 +144,7 @@ class OrderController extends BaseController
     public function getHistoryOrders($f3)
     {
         // 获取用户ID
-        $userId = $f3->get('PARAMS.user_id');
+        $userId = get_current_user_id();
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
@@ -195,7 +195,7 @@ class OrderController extends BaseController
     public function getFilledOrders($f3)
     {
         // 获取用户ID
-        $userId = $f3->get('PARAMS.user_id');
+        $userId = get_current_user_id();
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
