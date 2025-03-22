@@ -19,7 +19,7 @@ class TradingPairModel extends \DB\SQL\Mapper
     public function findById($pairId)
     {
         $this->load(['id = ?', $pairId]);
-        return $this->query;
+        return $this->cast();
     }
 
     // 查找所有可用交易对

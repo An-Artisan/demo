@@ -16,10 +16,10 @@ class OrderService
         $this->OrderModel = new OrderModel();
     }
 
-    public function createOrder($data)
+    public function createOrder($order)
     {
 
-        if (empty($data)) {
+        if (empty($order)) {
             logger()->write("Empty data passed to createOrder()", 'error');
             return false;
         }

@@ -116,7 +116,7 @@ class UserModel extends \DB\SQL\Mapper {
     // 根据用户ID查找用户
     public function findById($userId) {
         $this->load(['user_id = ?', $userId]);
-        return $this->query;
+        return $this->cast();
     }
 
 // 根据用户名查找用户
