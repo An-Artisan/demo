@@ -5,7 +5,7 @@ use app\Services\UserService;
 
 class TestJob {
 
-    // php artisan.php TestJob run
+    // php artisan TestJob run
     protected $f3;
 
     public function __construct($f3) {
