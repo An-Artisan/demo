@@ -90,7 +90,8 @@ $f3->route('GET /coins/get-currency-depth', 'app\Http\Controllers\Coins\CoinsCon
 $f3->route('GET /coins/get-currency-trade', 'app\Http\Controllers\Coins\CoinsController->getCurrencyTrade'); //币种成交记录
 $f3->route('GET /coins/get-index-data', 'app\Http\Controllers\Coins\CoinsController->getIndexData'); //指数数据
 
-
+//订单模块
+$f3->route('POST /order/create-order', 'app\Http\Controllers\Order\OrderController->createOrder');
 /**
  * 定义路由
  */

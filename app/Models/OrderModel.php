@@ -26,7 +26,7 @@ class OrderModel extends \DB\SQL\Mapper {
 
     // 创建新订单
     public function createOrder($order) {
-        $this->order_id = $orderId;
+        $this->order_id = intval(time().rand(100,999).rand(100,999));
         $this->user_id = $order['user_id'];
         $this->pair_id = $order['pair_id'];
         $this->type = $order['type'];

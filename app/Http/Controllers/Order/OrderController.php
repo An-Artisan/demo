@@ -17,7 +17,7 @@ class OrderController extends BaseController
     public function createOrder($f3)
     {
         // 获取用户输入
-        $userId = get_current_user_id();
+        $userId = get_current_uid();
         $pairId = $f3->get('POST.pair_id');
         $type   = $f3->get('POST.type'); // 使用常量 TradeConstants::TYPE_LIMIT 或 TradeConstants::TYPE_MARKET
         $side   = $f3->get('POST.side'); // 使用常量 TradeConstants::SIDE_BUY 或 TradeConstants::SIDE_SELL
@@ -78,7 +78,7 @@ class OrderController extends BaseController
             'user_id'    => $userId,
             'pair_id'    => $pairId,
             'type'       => $type,
-           'side'       => $side,
+            'side'       => $side,
             'price'      => $price,
             'amount'     => $amount
         ];
@@ -98,7 +98,7 @@ class OrderController extends BaseController
     public function getCurrentOrders($f3)
     {
         // 获取用户ID
-        $userId = get_current_user_id();
+        $userId = get_current_uid();
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
@@ -144,7 +144,7 @@ class OrderController extends BaseController
     public function getHistoryOrders($f3)
     {
         // 获取用户ID
-        $userId = get_current_user_id();
+        $userId = get_current_uid();
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
@@ -195,7 +195,7 @@ class OrderController extends BaseController
     public function getFilledOrders($f3)
     {
         // 获取用户ID
-        $userId = get_current_user_id();
+        $userId = get_current_uid();
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
