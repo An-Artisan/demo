@@ -9,9 +9,8 @@ use Template;
 class ChartController extends BaseController
 {
     // 显示K线图页面
-    public function chart()
+    public function chart($f3)
     {
-        echo 1231;exit;
 //        $f3->set('content', 'welcome.htm');
         $f3->set('klineData', [
             ['time' => '2025-03-22 06:00', 'open' => 30000, 'high' => 30100, 'low' => 29900, 'close' => 30050],
