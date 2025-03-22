@@ -9,7 +9,7 @@ return [
         'host' => env('DB_HOST', '127.0.0.1'),
         'port' => env('DB_PORT', '3306'),
         'dbname' => env('DB_NAME', 'test'),
-        'username' => env('DB_USERNAME', 'root'),
+        'username' => env('DB_USERNAME', 'ai'),
         'password' => env('DB_PASSWORD', 'new_password'),
     ],
     'cache' => [

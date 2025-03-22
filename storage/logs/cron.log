@@ -79,3 +79,70 @@ SQLSTATE[HY000] [2054] The server requested authentication method unknown to the
 ERROR 500 - Internal Server Error
 SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
 
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+"Meng2025."
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+"mysql:host=8.155.2.41;port=3306;dbname=test"
+"mysql:host=8.155.2.41;port=3306;dbname=test"
+"ai"
+"Meng2025."
+"mysql:host=8.155.2.41;port=3306;dbname=test"
+"ai"
+"Meng2025."
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+[PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548] PDO->__construct()
+[PHP/demo/lib/bootstrap/services.php:34] DB\SQL->__construct()
+[PHP/demo/artisan:11] require_once()
+
+===================================
+ERROR 500 - Internal Server Error
+SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client [/Users/artisan/PHP/demo/vendor/bcosca/fatfree-core/db/sql.php:548]
+
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+"SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
