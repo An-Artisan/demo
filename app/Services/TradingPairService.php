@@ -14,12 +14,12 @@ class TradingPairService
 
     public function findAllActive()
     {
-        $tradingPairs = $this->TradingPairModel->findAllActive();
+        return $this->TradingPairModel->findAllActive();
     }
 
     public function findById($id)
     {
-        $tradingPair = $this->TradingPairModel->findById($id);
+        return $this->TradingPairModel->findById($id);
     }
 
     //交易对数据批量入库
@@ -32,12 +32,12 @@ class TradingPairService
             return!in_array($tradingPair['pair_id'], $existedTradingPairs);
         });
         // 批量入库
-        $this->TradingPairModel->insertBatch($tradingPairs);
+        return $this->TradingPairModel->insertBatch($tradingPairs);
     }
 
     //更新或者新增交易对数据
     public function saveOrUpdate($tradingPair)
     {
-        $this->TradingPairModel->saveOrUpdate($tradingPair);
+        return $this->TradingPairModel->saveOrUpdate($tradingPair);
     }
 }

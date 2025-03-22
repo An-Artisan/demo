@@ -9,9 +9,10 @@ use Base;
  */
 class TradingPairModel extends \DB\SQL\Mapper
 {
+    protected $table = 'trading_pairs';
     public function __construct()
     {
-        parent::__construct(Base::instance()->get('DB'), 'trading_pairs');
+        parent::__construct(Base::instance()->get('DB'), $this->table);
     }
 
     // 根据交易对ID查找交易对
@@ -24,7 +25,12 @@ class TradingPairModel extends \DB\SQL\Mapper
     // 查找所有可用交易对
     public function findAllActive()
     {
-        return $this->find(['trade_status = ?', 'tradable']);
+        $result = [];
+        $results = $this->find(['trade_status = ?', 'tradable']);
+        foreach ($results as $res) {
+            $result[] = $res->cast();
+        }
+        return $result;
     }
 
     // 根据交易对名称查找交易对

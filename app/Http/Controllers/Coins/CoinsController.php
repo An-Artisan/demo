@@ -5,21 +5,20 @@ namespace app\Http\Controllers\Coins;
 use app\Http\Controllers\BaseController;
 use lib\config\Load;
 use lib\gate\GateClient;
+use app\Services\TradingPairService;
 
 class CoinsController extends BaseController
 {
     // 获取所有交易对列表
     public function getCurrencyList($f3)
     {
-        $client = new GateClient();
-        // 获取交易对
-        $data = $client->getSpotPairs();
+        $TradingPairService = new TradingPairService();
+        $data = $TradingPairService->findAllActive();
 
         if ($data === false) {
-            $this->error(500, "Failed to fetch data from Gate.io API");
+            $this->error(500, "Failed to fetch data");
             return;
         }
-
         $this->success($data);
     }
 
