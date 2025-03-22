@@ -34,6 +34,11 @@ class OrderService
         return $this->OrderModel->findCurrentOrders($userId, $limit, $offset);
     }
 
+    public function findCurrentOrdersAll($pairId, $limit) {
+        return $this->OrderModel->findCurrentOrdersAll( $pairId,$limit);
+    }
+
+
     public function countCurrentOrders($userId) {
         return $this->OrderModel->countCurrentOrders($userId);
     }

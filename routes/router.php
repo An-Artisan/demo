@@ -36,6 +36,7 @@ $f3->route('GET /users', function($f3, $params) {
 
 
 $f3->route('GET /users/get-balance', 'app\Http\Controllers\User\UserController->getBalance');
+$f3->route('GET /users/get-balance-local', 'app\Http\Controllers\User\UserController->getBalanceLocal');
 
 # 登录
 $f3->route('POST /api/login', 'app\Http\Controllers\Auth\LoginController->login');
@@ -91,6 +92,7 @@ $f3->route('GET /coins/get-currency-list', 'app\Http\Controllers\Coins\CoinsCont
 $f3->route('GET /coins/get-currency-info', 'app\Http\Controllers\Coins\CoinsController->getCurrencyInfo'); //交易对详情
 $f3->route('GET /coins/get-currency-kline', 'app\Http\Controllers\Coins\CoinsController->getCurrencyKline'); //币种K线
 $f3->route('GET /coins/get-currency-depth', 'app\Http\Controllers\Coins\CoinsController->getCurrencyDepth'); //币种深度
+$f3->route('GET /coins/get-currency-depth-local', 'app\Http\Controllers\Order\OrderController->getCurrentOrderListLocal'); //币种深度
 $f3->route('GET /coins/get-currency-trade', 'app\Http\Controllers\Coins\CoinsController->getCurrencyTrade'); //币种成交记录
 $f3->route('GET /coins/get-index-data', 'app\Http\Controllers\Coins\CoinsController->getIndexData'); //指数数据
 

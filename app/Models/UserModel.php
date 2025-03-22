@@ -131,4 +131,10 @@ class UserModel extends \DB\SQL\Mapper {
         $this->balance = json_encode($balance);
         $this->save();
     }
+
+    public function findByUserId($userId)
+    {
+        $this->load(['user_id = ?', $userId]);
+        return $this->dry() ? [] : $this->cast();
+    }
 }
