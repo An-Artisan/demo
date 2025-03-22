@@ -118,4 +118,25 @@ class OrderModel extends \DB\SQL\Mapper {
             TradeConstants::STATUS_FILLED
         ]);
     }
+
+
+    public function findRecentByPair($pairId, $limit = 10)
+    {
+        $sql = "
+        SELECT 
+            t.trade_id,
+            t.price,
+            t.amount,
+            t.fee,
+            t.created_at,
+            o.side,
+            o.type
+        FROM trades t
+        LEFT JOIN orders o ON o.order_id = t.taker_order_id
+        WHERE t.pair_id = ?
+        ORDER BY t.created_at DESC
+        LIMIT ?
+    ";
+        return $this->db->exec($sql, [$pairId, $limit]);
+    }
 }

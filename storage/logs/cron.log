@@ -146,3 +146,13 @@ SQLSTATE[HY000] [2054] The server requested authentication method unknown to the
 "SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
 "SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
 "SQLSTATE[HY000] [2054] The server requested authentication method unknown to the client"
+PHP Warning:  putenv(): Invalid parameter syntax in /Users/artisan/PHP/demo/helpers/env.php on line 10
+
+Warning: putenv(): Invalid parameter syntax in /Users/artisan/PHP/demo/helpers/env.php on line 10
+Fatal error: putenv(): Invalid parameter syntax
+[PHP/demo/helpers/env.php:10] 
+
+===================================
+ERROR 500 - Internal Server Error
+Fatal error: putenv(): Invalid parameter syntax
+

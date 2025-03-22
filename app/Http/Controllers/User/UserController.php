@@ -19,10 +19,22 @@ class UserController
         $this->userService = new UserService();
     }
 
+    public function getBalance($f3)
+    {
+        $currency = $f3->get('GET.currency');
+        $client = new GateClient();
+        $data         = $client->getBalance();
+        $spotData = $client->getSpotBalances(['currency' => $currency]);
+        $data['spot'] = $spotData;
+        $this->success($data);
+    }
+
+
+
     public function index($f3)
     {
-        $users = $this->userService->getUsers();
-        $this->success($users);
+        $data = $this->userService->getUsers();
+        $this->success($data);
     }
 
     public function show($f3, $params)
