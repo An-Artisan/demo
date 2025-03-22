@@ -28,4 +28,29 @@ class OrderService
         // 返回订单ID
         return $orderId;
     }
+
+    public function findCurrentOrders($userId, $limit, $offset) {
+        return $this->OrderModel->findCurrentOrders($userId, $limit, $offset);
+    }
+
+    public function countCurrentOrders($userId) {
+        return $this->OrderModel->countCurrentOrders($userId);
+    }
+
+    public function findHistoryOrders($userId, $limit, $offset,$sortField, $sortOrder) {
+        return $this->OrderModel->findHistoryOrders($userId, $limit, $offset,$sortField, $sortOrder);
+    }
+
+    public function countHistoryOrders($userId) {
+        return $this->OrderModel->countHistoryOrders($userId);
+    }
+
+    public function findFilledOrders($userId, $limit, $offset,$sortField, $sortOrder) {
+        return $this->OrderModel->findFilledOrders($userId, $limit, $offset,$sortField, $sortOrder);
+    }
+
+    public function countFilledOrders($userId) {
+
+        return $this->OrderModel->countFilledOrders($userId);
+    }
 }

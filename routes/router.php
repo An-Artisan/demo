@@ -92,6 +92,8 @@ $f3->route('GET /coins/get-index-data', 'app\Http\Controllers\Coins\CoinsControl
 
 //订单模块
 $f3->route('POST /order/create-order', 'app\Http\Controllers\Order\OrderController->createOrder');
+$f3->route('GET /order/get-current-order-list', 'app\Http\Controllers\Order\OrderController->getCurrentOrderList');
+$f3->route('GET /order/get-history-order-list', 'app\Http\Controllers\Order\OrderController->getHistoryOrderList');
 /**
  * 定义路由
  */

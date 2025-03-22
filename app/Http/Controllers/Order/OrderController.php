@@ -116,26 +116,26 @@ class OrderController extends BaseController
     }
 
     // 获取用户当前委托列表（带分页）
-    public function getCurrentOrders($f3)
+    public function getCurrentOrderList($f3)
     {
         // 获取用户ID
         $userId = get_current_uid();
-
+//        $userId = 1;
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
         $limit  = $f3->get('GET.limit') ? (int)$f3->get('GET.limit') : 10;
         $offset = ($page - 1) * $limit;
 
         // 查询用户当前委托（未完全成交的订单）
-        $orderModel = new OrderModel();
-        $orders     = $orderModel->findCurrentOrders($userId, $limit, $offset);
+        $OrderService = new OrderService();
+        $orders     = $OrderService->findCurrentOrders($userId, $limit, $offset);
 
         // 查询总记录数
-        $total = $orderModel->countCurrentOrders($userId);
+        $total = $OrderService->countCurrentOrders($userId);
 
         // 格式化返回数据
         $result = [
-            'data'       => [],
+            'list'       => [],
             'pagination' => [
                 'page'        => $page,
                 'limit'       => $limit,
@@ -144,7 +144,7 @@ class OrderController extends BaseController
             ]
         ];
         foreach ($orders as $order) {
-            $result['data'][] = [
+            $result['list'][] = [
                 'order_id'      => $order->order_id,
                 'pair_id'       => $order->pair_id,
                 'type'          => $order->type,
@@ -162,10 +162,11 @@ class OrderController extends BaseController
     }
 
     // 获取用户历史委托列表
-    public function getHistoryOrders($f3)
+    public function getHistoryOrderList($f3)
     {
         // 获取用户ID
         $userId = get_current_uid();
+//        $userId = 1;
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
@@ -177,15 +178,15 @@ class OrderController extends BaseController
         $sortOrder = $f3->get('GET.sort_order') ?: 'DESC';
 
         // 查询用户历史委托
-        $orderModel = new OrderModel();
-        $orders     = $orderModel->findHistoryOrders($userId, $limit, $offset, $sortField, $sortOrder);
+        $OrderService = new OrderService();
+        $orders     = $OrderService->findHistoryOrders($userId, $limit, $offset, $sortField, $sortOrder);
 
         // 查询总记录数
-        $total = $orderModel->countHistoryOrders($userId);
+        $total = $OrderService->countHistoryOrders($userId);
 
         // 格式化返回数据
         $result = [
-            'data'       => [],
+            'list'       => [],
             'pagination' => [
                 'page'        => $page,
                 'limit'       => $limit,
@@ -194,7 +195,7 @@ class OrderController extends BaseController
             ]
         ];
         foreach ($orders as $order) {
-            $result['data'][] = [
+            $result['list'][] = [
                 'order_id'      => $order->order_id,
                 'pair_id'       => $order->pair_id,
                 'type'          => $order->type,
@@ -213,7 +214,7 @@ class OrderController extends BaseController
     }
 
     // 获取用户成交记录列表
-    public function getFilledOrders($f3)
+    public function getFilledOrderList($f3)
     {
         // 获取用户ID
         $userId = get_current_uid();
