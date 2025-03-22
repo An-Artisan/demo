@@ -166,9 +166,12 @@
             币种选择：
             <select id="coinPairSelect"></select>
         </label>
+        <div class="info-bar">欢迎用户: <?php echo $_SESSION['user']['username']; ?></div>
+
         <div class="info-bar" id="marketInfo">当前币种: BTC/USDT，价格: --，涨幅: --</div>
     </div>
     <div class="grid">
+
         <div class="kline-box">
             <div id="klineChart"></div>
         </div>
