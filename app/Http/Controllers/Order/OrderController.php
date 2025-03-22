@@ -58,14 +58,31 @@ class OrderController extends BaseController
             return;
         }
 
-        $balance = get_object_vars(json_decode($user['balance']));
-        $balance = array_change_key_case($balance, CASE_LOWER);
         //拆解交易对
         $tradingPair = explode('_', $pairId);
         $tradingPair = array_map('strtolower', $tradingPair);
+        $currency_base_balance = 0;
+        $currency_quote_balance = 0;
 
-        $currency_base_balance = $balance[$tradingPair[0]];//交易对的基础币余额
-        $currency_quote_balance = $balance[$tradingPair[1]];//交易对的计价币余额
+
+        $balance = get_object_vars(json_decode($user['balance']));
+        if ($balance['spot']) {
+            foreach($balance['spot'] as $value) {
+                $tmp_balance =get_object_vars($value);
+
+                if (strtolower($tmp_balance['currency']) == $tradingPair[0]) {
+                    $currency_base_balance = $tmp_balance['available']; //交易对的基础币余额
+                }
+
+                if (strtolower($tmp_balance['currency']) == $tradingPair[1]) {
+                    $currency_quote_balance = $tmp_balance['available'];//交易对的计价币余额
+                }
+            }
+        }
+
+        var_dump($currency_base_balance);
+        var_dump($currency_quote_balance);
+        exit;
 
         //检查余额是否足够 限价单
         if ($type == TradeConstants::TYPE_LIMIT) {
