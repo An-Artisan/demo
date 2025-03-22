@@ -71,10 +71,10 @@ $f3->route('GET /logout', function($f3) {
 //    Middleware::run([
 ////        AuthMiddleware::class,  // 认证中间件
 ////        ThrottleMiddleware::class  // 限流中间件
-//    ], 'app\Http\Controllers\Order\ChartController->showChart',[$f3, $params]);
+//    ], 'app\Http\Controllers\Order\TradeController->showChart',[$f3, $params]);
 //});
 
-$f3->route('GET /show-chart', 'app\Http\Controllers\Order\ChartController->showChart');
+$f3->route('GET /trade/chart', 'app\Http\Controllers\Order\TradeController->chart');
 
 
 //$f3->route('GET /users', 'app\Http\Controllers\User\UserController->index'); // 获取所有用户

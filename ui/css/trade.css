@@ -1,0 +1,82 @@
+/* 基础样式 */
+:root {
+    --primary: #2ecc71;
+    --secondary: #3498db;
+    --light: #f5f7fa;
+    --dark: #2c3e50;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: var(--light);
+    transition: background 0.3s ease;
+}
+
+/* 响应式布局 */
+.container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+@media (min-width: 768px) {
+    .container {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+/* 图表样式 */
+.chart-canvas {
+    height: 400px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* 订单簿样式 */
+.order-book {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.book-side {
+    padding: 10px;
+    background: var(--light);
+    border-radius: 4px;
+}
+
+/* 主题切换 */
+[data-theme="dark"] {
+    --light: #2c3e50;
+    --dark: #ecf0f1;
+    background: var(--dark);
+    color: white;
+}
+
+/* 加载状态 */
+.loading-spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0,0,0,0.1);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

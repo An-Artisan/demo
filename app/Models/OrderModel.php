@@ -2,12 +2,15 @@
 namespace app\Models;
 
 use Base;
+use app\Constants\TradeConstants;
 /**
  * 订单模型
  */
 class OrderModel extends \DB\SQL\Mapper {
+    protected $table = 'orders';
+
     public function __construct() {
-        parent::__construct(Base::instance()->get('DB'), 'orders');
+        parent::__construct(Base::instance()->get('DB'), $this->table);
     }
 
     // 根据订单ID查找订单
@@ -22,16 +25,28 @@ class OrderModel extends \DB\SQL\Mapper {
     }
 
     // 创建新订单
-    public function createOrder($userId, $pairId, $type, $side, $price, $amount) {
-        $this->user_id = $userId;
-        $this->pair_id = $pairId;
-        $this->type = $type;
-        $this->side = $side;
-        $this->price = $price;
-        $this->amount = $amount;
+    public function createOrder($order) {
+        $this->order_id = $orderId;
+        $this->user_id = $order['user_id'];
+        $this->pair_id = $order['pair_id'];
+        $this->type = $order['type'];
+        $this->side = $order['side'];
+        $this->price = $order['price'];
+        $this->amount = $order['amount'];
+        $this->status = TradeConstants::STATUS_PENDING;
+        $this->filled_amount = 0;
+        $this->created_at = date('Y-m-d H:i:s');
         $this->save();
         return $this->order_id;
     }
+
+    // 取消订单
+    public function cancelOrder($orderId) {
+        $this->load(['order_id = ?', $orderId]);
+        $this->status = TradeConstants::STATUS_CANCELED;
+        $this->save();
+    }
+
 
     // 更新订单状态
     public function updateStatus($orderId, $status) {

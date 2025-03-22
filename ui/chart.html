@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>BTC/USDT 交易</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2/dist/echarts.min.js"></script>
+</head>
+<body>
+<h1>BTC/USDT 交易</h1>
+
+<!-- K 线图容器 -->
+<div id="klineChart" style="width: 100%; height: 500px;"></div>
+
+<script>
+    // 初始化 ECharts
+    var chart = echarts.init(document.getElementById('klineChart'));
+
+    // K 线图数据
+    var klineData = [
+        {!! json_encode(@klineData) !!}
+    ];
+
+    // 配置项
+    var option = {
+        title: {
+            text: 'BTC/USDT K 线图'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross'
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: klineData.map(item => item.time)
+        },
+        yAxis: {
+            scale: true
+        },
+        series: [
+            {
+                type: 'candlestick',
+                data: klineData.map(item => [item.open, item.close, item.low, item.high])
+            }
+        ]
+    };
+
+    // 渲染图表
+    chart.setOption(option);
+</script>
+</body>
+</html>
