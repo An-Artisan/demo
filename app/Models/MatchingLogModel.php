@@ -1,6 +1,7 @@
 <?php
 namespace app\Models;
 
+use Base;
 /**
  * 撮合引擎日志模型
  */

@@ -70,6 +70,11 @@ class GateClient
             $pairsArray = array_map(function ($pair) {
                 return ObjectSerializer::sanitizeForSerialization($pair);
             }, $pairs);
+            if ($pairsArray) {
+                foreach ($pairsArray as $key => $value) {
+                    $pairsArray[$key] = get_object_vars($value);
+                }
+            }
             return $pairsArray;
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
@@ -130,10 +135,10 @@ class GateClient
                 'currency_pair' => $currencyPair,
                 'interval'      => $interval,
                 'limit'         => $limit,
-               'start_time'    => $startTime,
+                'start_time'    => $startTime,
                 'end_time'      => $endTime,
             ];
-            $kline = $this->spotApi->listCandlesticks($params);
+            $kline  = $this->spotApi->listCandlesticks($params);
             return ObjectSerializer::sanitizeForSerialization($kline);
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
@@ -164,7 +169,7 @@ class GateClient
      * @param int $limit 限制返回的数据条数，最大 1000
      * @return array|bool|float|int|object|string
      */
-    public function listOrderBook(string $currencyPair,string $interval, int $limit): array
+    public function listOrderBook(string $currencyPair, string $interval, int $limit): array
     {
         try {
             $params = [
@@ -172,7 +177,7 @@ class GateClient
                 'interval'      => $interval,
                 'limit'         => $limit,
             ];
-            $depth = $this->spotApi->listOrderBook($params);
+            $depth  = $this->spotApi->listOrderBook($params);
 
             return get_object_vars(ObjectSerializer::sanitizeForSerialization($depth));
         } catch (\Exception $e) {
