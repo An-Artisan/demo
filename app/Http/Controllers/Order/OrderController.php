@@ -217,7 +217,8 @@ class OrderController extends BaseController
     public function getFilledOrderList($f3)
     {
         // 获取用户ID
-        $userId = get_current_uid();
+//        $userId = get_current_uid();
+        $userId = 1;
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
@@ -229,15 +230,14 @@ class OrderController extends BaseController
         $sortOrder = $f3->get('GET.sort_order') ?: 'DESC';
 
         // 查询用户成交记录
-        $orderModel = new OrderModel();
-        $orders     = $orderModel->findFilledOrders($userId, $limit, $offset, $sortField, $sortOrder);
-
+        $OrderService = new OrderService();
+        $orders     = $OrderService->findFilledOrders($userId, $limit, $offset, $sortField, $sortOrder);
         // 查询总记录数
-        $total = $orderModel->countFilledOrders($userId);
+        $total = $OrderService->countFilledOrders($userId);
 
         // 格式化返回数据
         $result = [
-            'data'       => [],
+            'list'       => [],
             'pagination' => [
                 'page'        => $page,
                 'limit'       => $limit,
@@ -246,7 +246,7 @@ class OrderController extends BaseController
             ]
         ];
         foreach ($orders as $order) {
-            $result['data'][] = [
+            $result['list'][] = [
                 'order_id'      => $order->order_id,
                 'pair_id'       => $order->pair_id,
                 'type'          => $order->type,

@@ -29,7 +29,7 @@ class OrderService
         return $orderId;
     }
 
-<<<<<<< HEAD
+
     public function findCurrentOrders($userId, $limit, $offset) {
         return $this->OrderModel->findCurrentOrders($userId, $limit, $offset);
     }
@@ -54,8 +54,7 @@ class OrderService
 
         return $this->OrderModel->countFilledOrders($userId);
     }
-}
-=======
+
     /**
      * 获取某币种（交易对）下最近成交的N条记录
      */
@@ -65,4 +64,4 @@ class OrderService
     }
 
 }
->>>>>>> d8441fbba157b1de56a7f4d38eb7525eecca6d11
+
