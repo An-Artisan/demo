@@ -1,0 +1,147 @@
+body {
+    margin: 0;
+    font-family: "Helvetica Neue", sans-serif;
+    background: #f8f9fa;
+}
+
+.container {
+    padding: 10px 20px;
+}
+
+.top-bar {
+    background: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.pair-info {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.price {
+    color: #e60000;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.summary span {
+    margin-right: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.main-grid {
+    display: flex;
+    gap: 20px;
+}
+
+/* 左侧图表 */
+.chart-section {
+    flex: 2;
+    background: #fff;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+/* 右侧交易 */
+.order-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 盘口 */
+.price-list {
+    background: #fff;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.price-list-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.price-list-box li {
+    padding: 5px 0;
+    font-size: 14px;
+}
+
+/* 下单框 */
+.trade-box {
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.trade-tab {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.trade-tab button {
+    flex: 1;
+    padding: 8px 0;
+    border: none;
+    background: #f1f1f1;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.trade-tab button.active {
+    background: #007bff;
+    color: #fff;
+}
+
+.trade-form label {
+    display: block;
+    margin: 8px 0 4px;
+}
+
+.trade-form input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.buy-btn {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.bottom-tabs {
+    background: #fff;
+    margin-top: 20px;
+    padding: 10px;
+    display: flex;
+    gap: 20px;
+    border-radius: 5px;
+}
+
+.bottom-tabs button {
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.bottom-tabs button.active {
+    color: #007bff;
+    font-weight: bold;
+    border-bottom: 2px solid #007bff;
+}

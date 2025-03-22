@@ -21,6 +21,12 @@ class UserController
 
     public function index($f3)
     {
+        $client = new GateClient();
+        // 获取单个币种的深度数据
+        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
+
+        $data         = $client->getSpotTickers(['currency_pair' => $currencyPair]);
+        dd($data);
         $users = $this->userService->getUsers();
         $this->success($users);
     }

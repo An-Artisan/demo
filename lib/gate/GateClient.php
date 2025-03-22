@@ -23,7 +23,7 @@ class GateClient
     public function __construct(string $apiKey = '', string $apiSecret = '')
     {
         if ($apiKey == '' || $apiSecret == '') {
-            $apiKey    = Load::get('gate.api_key');
+            $apiKey = Load::get('gate.api_key');
             $apiSecret = Load::get('gate.api_secret');
         }
         // 配置 API 认证信息
@@ -32,9 +32,9 @@ class GateClient
             ->setSecret($apiSecret);
 
         // 初始化 API 客户端
-        $httpClient      = new Client();
+        $httpClient = new Client();
         $this->walletApi = new WalletApi($httpClient, $config);
-        $this->spotApi   = new SpotApi($httpClient, $config);
+        $this->spotApi = new SpotApi($httpClient, $config);
     }
 
 
@@ -66,7 +66,7 @@ class GateClient
     public function getSpotPairs(): array
     {
         try {
-            $pairs      = $this->spotApi->listCurrencyPairs();
+            $pairs = $this->spotApi->listCurrencyPairs();
             $pairsArray = array_map(function ($pair) {
                 return ObjectSerializer::sanitizeForSerialization($pair);
             }, $pairs);
@@ -115,51 +115,32 @@ class GateClient
     }
 
     /**
-     * 获取单个现货交易对的 K 线数据
-     *
-     * @param string $currencyPair 交易对名称，如 BTC_USDT
-     * @param string $interval 时间间隔，如 1min, 5min, 15min, 30min, 1hour, 2hour, 4hour, 6hour, 12hour, 1day, 3day, 7day
-     * @param int $limit 限制返回的数据条数，最大 1000
-     * @param int $startTime 开始时间戳（秒）
-     * @param int $endTime 结束时间戳（秒）
+     * K 线图
+     * @param string $currencyPair
+     * @param string $interval
+     * @param int $limit
+     * @param int $from
+     * @param int $to
      * @return array|bool|float|int|object|string
+     * @author liuqiang
+     * @email  liuqiang@smzdm.com
+     * @since  2025年03月22日17:27
      */
-    public function listCandlesticks(string $currencyPair,
-        string $interval,
-        int $limit,
-        int $startTime,
-        int $endTime): array
+    public function listCandlesticks(
+        array $params
+    )
     {
         try {
-            $params = [
-                'currency_pair' => $currencyPair,
-                'interval'      => $interval,
-                'limit'         => $limit,
-                'start_time'    => $startTime,
-                'end_time'      => $endTime,
-            ];
-            $kline  = $this->spotApi->listCandlesticks($params);
-            return ObjectSerializer::sanitizeForSerialization($kline);
+            // 调用实际 API（假设你有注入好的 $this->spotApi 实例）
+            $response = $this->spotApi->listCandlesticks($params);
+
+            return \GateApi\ObjectSerializer::sanitizeForSerialization($response);
+
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
-    /**
-     * 获取单个现货交易对的最新成交数据
-     *
-     * @param string $currencyPair 交易对名称，如 BTC_USDT
-     * @return array|bool|float|int|object|string
-     */
-    public function getSpotTicker(string $currencyPair): array
-    {
-        try {
-            $ticker = $this->spotApi->getCurrencyPairTicker($currencyPair);
-            return ObjectSerializer::sanitizeForSerialization($ticker);
-        } catch (\Exception $e) {
-            return ['error' => $e->getMessage()];
-        }
-    }
 
     /**
      * 获取单个现货交易对的深度数据
@@ -174,14 +155,34 @@ class GateClient
         try {
             $params = [
                 'currency_pair' => $currencyPair,
-                'interval'      => $interval,
-                'limit'         => $limit,
+                'interval' => $interval,
+                'limit' => $limit,
             ];
-            $depth  = $this->spotApi->listOrderBook($params);
+            $depth = $this->spotApi->listOrderBook($params);
 
             return get_object_vars(ObjectSerializer::sanitizeForSerialization($depth));
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
     }
+
+    /**
+     * 获取单个现货交易对的最新成交数据
+     *
+     * @param array $queryParams 交易对名称，如 BTC_USDT
+     * @return array|bool|float|int|object|string
+     */
+    public function getSpotTickers(array $queryParams = [])
+    {
+        try {
+            // 发起 GET 请求到 Gate.io API /spot/tickers 接口
+            $response = $this->spotApi->listTickers($queryParams);
+
+            // 转为标准结构数组返回
+            return ObjectSerializer::sanitizeForSerialization($response);
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
 }
