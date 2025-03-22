@@ -17,5 +17,5 @@ class TradeConstants {
     const STATUS_PENDING = 0; // 待成交
     const STATUS_PARTIAL = 1; // 部分成交
     const STATUS_FILLED = 2; // 完全成交
-    const STATUS_CANCELLED = 3; // 已取消
+    const STATUS_CANCELED = 3; // 已取消
 }

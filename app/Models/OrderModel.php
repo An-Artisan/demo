@@ -55,7 +55,7 @@ class OrderModel extends \DB\SQL\Mapper {
         $this->save();
     }
 
-    // 查询用户当前委托（带分页）
+    // 查询用户当前委托
     public function findCurrentOrders($userId, $pairId) {
         return $this->find([
             'user_id = ? AND status IN (?, ?) AND pair_id = ?',
@@ -87,7 +87,7 @@ class OrderModel extends \DB\SQL\Mapper {
         ]);
     }
 
-    // 查询用户历史委托（带分页和排序）
+    // 查询用户历史委托
     public function findHistoryOrders($userId, $pairId, $sortField, $sortOrder) {
         return $this->find([
             'user_id = ? AND pair_id = ? ORDER BY ? ? ',
