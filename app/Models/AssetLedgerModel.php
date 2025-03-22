@@ -1,6 +1,7 @@
 <?php
 namespace app\Models;
 
+use Base;
 /**
  * 资产流水模型
  */

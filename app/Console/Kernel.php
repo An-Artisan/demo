@@ -11,6 +11,7 @@ class Kernel {
     public function commands(): array {
         return [
             'TestJob' => \app\Console\Commands\TestJob::class,
+            'CleanTradingPairJob' => \app\Console\Commands\CleanTradingPairJob::class,
         ];
     }
 

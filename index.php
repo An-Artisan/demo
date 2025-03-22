@@ -1,5 +1,4 @@
 <?php
-
 // 1. 加载 Composer 自动加载
 require_once __DIR__ . '/vendor/autoload.php';
 

@@ -6,9 +6,9 @@ use App\Models\OrderModel;
 
 class OrderService
 {
-    protected $AssetLedgerModel;
+    protected $OrderModel;
 
     public function __construct() {
-        $this->AssetLedgerModel = new AssetLedgerModel();
+        $this->OrderModel = new OrderModel();
     }
 }

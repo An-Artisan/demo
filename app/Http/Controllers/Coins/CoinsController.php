@@ -5,48 +5,31 @@ namespace app\Http\Controllers\Coins;
 use app\Http\Controllers\BaseController;
 use lib\config\Load;
 use lib\gate\GateClient;
+use app\Services\TradingPairService;
 
 class CoinsController extends BaseController
 {
     // 获取所有交易对列表
     public function getCurrencyList($f3)
     {
-        $client = new GateClient();
-        // 获取交易对
-        $data = $client->getSpotPairs();
+        $TradingPairService = new TradingPairService();
+        $data = $TradingPairService->findAllActive();
 
         if ($data === false) {
-            $this->error(500, "Failed to fetch data from Gate.io API");
+            $this->error(500, "Failed to fetch data");
             return;
         }
-
         $this->success($data);
     }
 
     //获取单个币种信息的接口
     public function getCurrencyInfo($f3)
     {
-        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
-        $client = new GateClient();
+        $currency = $f3->get('GET.currency') ?? 'BTC';
+        $client       = new GateClient();
         // 获取单交易对信息
-        $data = $client->getSpotPairInfo($currencyPair);
+        $data = $client->getCurrency($currency);
 
-        $data = [];
-        if ($data === false) {
-            $this->error(500, "Failed to fetch data from Gate.io API");
-            return;
-        }
-
-        $this->success($data);
-    }
-
-    //获取币种配置信息的接口
-    public function getCurrencyConfig($f3)
-    {
-        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
-        $client = new GateClient();
-        // 获取单交易对信息
-        $data = $client->getSpotPairConfig($currencyPair);
         if ($data === false) {
             $this->error(500, "Failed to fetch data from Gate.io API");
             return;
@@ -56,70 +39,70 @@ class CoinsController extends BaseController
     }
 
     //获取单个币种的K线数据接口
-    public function getKlineData($f3)
+    public function getCurrencyKline($f3)
     {
-        //TODO 此处填充gateio请求的数据代码
-        //  获取单个币种的K线数据 API 地址 $url = "https://api.gateio.ws/api/v4/spot/klines?currency_pair=BTC_USDT&interval=1d&limit=100";
-        // 检查数据是否获取成功
-        $data = [];
+        $client = new GateClient();
+        // 获取单个币种的 K线数据
+        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
+        $interval     = $f3->get('GET.interval') ?? '1m';
+        $limit        = $f3->get('GET.limit') ?? 100;
+        $startTime    = $f3->get('GET.start_time') ?? 0;
+        $endTime      = $f3->get('GET.end_time') ?? 0;
+        $data         = $client->listCandlesticks($currencyPair, $interval, $limit, $startTime, $endTime);
         if ($data === false) {
             $this->error(500, "Failed to fetch data from Gate.io API");
             return;
         }
 
-        // 返回 JSON 格式的单个币种的K线数据
-        header('Content-Type: application/json');
         $this->success($data);
     }
 
+
     //获取单个币种的深度数据接口
-    public function getDepthData($f3)
+    public function getCurrencyDepth($f3)
     {
-        //TODO 此处填充gateio请求的数据代码
-        //  获取单个币种的深度数据 API 地址 $url = "https://api.gateio.ws/api/v4/spot/order_book?currency_pair=BTC_USDT";
-        // 检查数据是否获取成功
-        $data = [];
+        $client = new GateClient();
+        // 获取单个币种的深度数据
+        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
+        $interval     = $f3->get('GET.interval') ?? '0.00000001';
+        $limit        = $f3->get('GET.limit') ?? 100;
+        $data         = $client->listOrderBook($currencyPair,$interval, $limit);
         if ($data === false) {
             $this->error(500, "Failed to fetch data from Gate.io API");
             return;
         }
 
-        // 返回 JSON 格式的单个币种的深度数据
-        header('Content-Type: application/json');
         $this->success($data);
     }
 
     //获取单个币种的成交数据接口
-    public function getTradeData($f3)
+    public function getCurrencyTrade($f3)
     {
-        //TODO 此处填充gateio请求的数据代码
-        //  获取单个币种的成交数据 API 地址 $url = "https://api.gateio.ws/api/v4/spot/trades?currency_pair=BTC_USDT&limit=100";
-        // 检查数据是否获取成功
-        $data = [];
+        $client = new GateClient();
+        // 获取单个币种的成交数据
+        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
+        $limit        = $f3->get('GET.limit') ?? 100;
+        $data         = $client->getSpotTrades($currencyPair, $limit);
         if ($data === false) {
             $this->error(500, "Failed to fetch data from Gate.io API");
             return;
         }
 
-        // 返回 JSON 格式的单个币种的成交数据
-        header('Content-Type: application/json');
         $this->success($data);
     }
 
     //获取单个币种的指数数据接口
     public function getIndexData($f3)
     {
-        //TODO 此处填充gateio请求的数据代码
-        //  获取单个币种的指数数据 API 地址 $url = "https://api.gateio.ws/api/v4/spot/indexes?currency_pair=BTC_USDT";
-        // 检查数据是否获取成功
-        $data = [];
+        $client = new GateClient();
+        // 获取单个币种的指数数据
+        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
+        $data         = $client->getSpotIndex($currencyPair);
         if ($data === false) {
             $this->error(500, "Failed to fetch data from Gate.io API");
             return;
         }
 
-        // 返回 JSON 格式的单个币种的指数数据
-        header('Content-Type: application/json');
         $this->success($data);
     }
 

@@ -1,6 +1,7 @@
 <?php
 namespace app\Models;
 
+use Base;
 /**
  * 订单模型
  */
