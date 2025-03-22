@@ -104,7 +104,8 @@ $f3->route('GET /order/get-current-order-list', 'app\Http\Controllers\Order\Orde
 $f3->route('GET /order/get-history-order-list', 'app\Http\Controllers\Order\OrderController->getHistoryOrderList');
 $f3->route('GET /order/get-filled-order-list', 'app\Http\Controllers\Order\OrderController->getFilledOrderList');
 
-$f3->route('GET /order/get-latest-trades', 'app\Http\Controllers\Order\OrderController->getLatestTrades'); //指数数据
+// 获取最新成交订单
+$f3->route('GET /order/get-latest-trades', 'app\Http\Controllers\Order\OrderController->getLatestTrades');
 
 /**
  * 定义路由

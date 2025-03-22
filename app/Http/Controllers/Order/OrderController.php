@@ -20,12 +20,12 @@ class OrderController extends BaseController
     {
         // 获取用户输入
         $userId = get_current_uid();
-//        $userId = 3;
-        $pairId = $f3->get('POST.pair_id');
-        $type = $f3->get('POST.type', TradeConstants::TYPE_LIMIT); // 使用常量 TradeConstants::TYPE_LIMIT 或 TradeConstants::TYPE_MARKET
-        $side = $f3->get('POST.side', TradeConstants::SIDE_BUY); // 使用常量 TradeConstants::SIDE_BUY 或 TradeConstants::SIDE_SELL
-        $price = $f3->get('POST.price'); // 限价单需要价格
-        $amount = $f3->get('POST.amount');// 委托数量
+        $body = json_decode($f3->get('BODY'), true);
+        $pairId = $body['pair_id'] ?? 'BTC_USDT';
+        $type = $body['type'] ?? 0;
+        $side = $body['side'] ?? 0;
+        $price = $body['price'] ?? 0;
+        $amount = $body['amount'] ?? 0;
         if (!$userId) {
             $this->error(400, 'User not logged in');
             return;
@@ -80,9 +80,9 @@ class OrderController extends BaseController
             }
         }
 
-        var_dump($currency_base_balance);
-        var_dump($currency_quote_balance);
-        exit;
+//        var_dump($currency_base_balance);
+//        var_dump($currency_quote_balance);
+//        exit;
 
         //检查余额是否足够 限价单
         if ($type == TradeConstants::TYPE_LIMIT) {
@@ -221,13 +221,9 @@ class OrderController extends BaseController
         $userId = get_current_uid();
         $pairId = $f3->get('GET.pair_id');
 
-        // 获取排序参数（默认按创建时间倒序）
-        $sortField = $f3->get('GET.sort_field') ?: 'created_at';
-        $sortOrder = $f3->get('GET.sort_order') ?: 'DESC';
-
         // 查询用户历史委托
         $OrderService = new OrderService();
-        $orders = $OrderService->findHistoryOrders($userId, $pairId, $sortField, $sortOrder);
+        $orders = $OrderService->findHistoryOrders($userId, $pairId);
 
         $result = [];
         foreach ($orders as $order) {
@@ -256,13 +252,10 @@ class OrderController extends BaseController
         $userId = get_current_uid();
         $pairId = $f3->get('GET.pair_id');
 
-        // 获取排序参数（默认按成交时间倒序）
-        $sortField = $f3->get('GET.sort_field') ?: 'created_at';
-        $sortOrder = $f3->get('GET.sort_order') ?: 'DESC';
 
         // 查询用户成交记录
         $OrderService = new OrderService();
-        $orders = $OrderService->findFilledOrders($userId, $pairId, $sortField, $sortOrder);
+        $orders = $OrderService->findFilledOrders($userId, $pairId);
         $result = [];
         foreach ($orders as $order) {
             $result[] = [

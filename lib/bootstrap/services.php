@@ -8,6 +8,7 @@ use lib\logging\BothLogger;
 use lib\logging\ConsoleLogger;
 use lib\logging\FileLogger;
 use lib\logging\LoggerFactory;
+date_default_timezone_set('Asia/Shanghai');
 
 //  加载 .env（此时 helpers.php 已定义 loadEnv）
 loadEnv(__DIR__ . '/../../.env');

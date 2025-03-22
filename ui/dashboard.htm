@@ -196,14 +196,26 @@
         </div>
         <div class="panel trade-form">
             <h3>交易</h3>
-            <select id="orderType">
+
+            <!-- 类型选择 -->
+            <select id="orderType" onchange="togglePriceField()">
                 <option value="limit">限价</option>
                 <option value="market">市价</option>
             </select>
+
+            <!-- 价格输入框，市价时会隐藏 -->
             <input type="number" id="priceInput" placeholder="价格（USDT）">
+
+            <!-- 数量输入框 -->
             <input type="number" id="amountInput" placeholder="数量（BTC）">
-            <button onclick="placeOrder()">买入</button>
+
+            <!-- 交易按钮 -->
+            <div style="display: flex; gap: 10px;">
+                <button onclick="placeOrder(0)">买入</button>
+                <button onclick="placeOrder(1)" style="background-color: #f03e3e;">卖出</button>
+            </div>
         </div>
+
         <div class="panel">
             <h3>API资产</h3>
             <div class="total-assets" id="totalAsset"></div> <!-- ✅ 总资产展示 -->
@@ -263,6 +275,7 @@
     const useAjax = false;
     let currentTab = 'current';
     let currentCoin = 'BTC';
+    let pollingIntervalId = null; // 定时器 ID
 
     function fetchCoinList() {
         axios.get('http://localhost:8888/coins/get-currency-list').then(res => {
@@ -300,7 +313,16 @@
             }
         });
     }
+    function togglePriceField() {
+        const orderType = document.getElementById('orderType').value;
+        const priceInput = document.getElementById('priceInput');
 
+        if (orderType === 'market') {
+            priceInput.style.display = 'none';
+        } else {
+            priceInput.style.display = 'block';
+        }
+    }
     function fetchKlineData(base) {
         axios.get(`http://localhost:8888/coins/get-currency-kline?currency_pair=${base}_USDT&interval=1h&limit=1000`).then(res => {
             if (res.data.code === 200) {
@@ -412,6 +434,7 @@
                         3: '已取消'
                     };
                     const statusText = statusMap[order.status] || '未知';
+                    const displayPrice = order.type === 1 ? '-' : order.price;
 
                     tbody.innerHTML += `
                 <tr>
@@ -419,7 +442,7 @@
                     <td>${order.pair_id}</td>
                     <td>${typeText}</td>
                     <td>${sideText}</td>
-                    <td>${order.price}</td>
+                    <td>${displayPrice}</td>
                     <td>${order.amount}</td>
                     <td>${order.filled_amount}</td>
                     <td>${statusText}</td>
@@ -449,6 +472,7 @@
                         3: '已取消'
                     };
                     const statusText = statusMap[order.status] || '未知';
+                    const displayPrice = order.type === 1 ? '-' : order.price;
 
                     tbody.innerHTML += `
                 <tr>
@@ -456,7 +480,7 @@
                     <td>${order.pair_id}</td>
                     <td>${typeText}</td>
                     <td>${sideText}</td>
-                    <td>${order.price}</td>
+                    <td>${displayPrice}</td>
                     <td>${order.amount}</td>
                     <td>${order.filled_amount}</td>
                     <td>${statusText}</td>
@@ -505,55 +529,85 @@
             }
         });
     }
-    function fetchAssetData(base) {
+    function fetchAssetData(pairId) {
+        const [base, quote] = pairId.split('_'); // 拆成 BTC 和 USDT
+        const tbody = document.querySelector('#assetTable tbody');
+        tbody.innerHTML = ''; // 清空旧内容
+
+        let totalAmount = 0;
+        let currencySymbol = '';
+
+        // 请求 quote 币种资产（主展示）
+        axios.get(`http://localhost:8888/users/get-balance?currency=${quote}`).then(res => {
+            if (res.data.code === 200) {
+                const data = res.data.data;
+                const total = data.total;
+                const details = data.details;
+
+                totalAmount = parseFloat(total.amount);
+                currencySymbol = total.currency;
+
+                // ✅ 分账户展示（只展示金额 > 0）
+                for (let type in details) {
+                    const row = details[type];
+                    if (parseFloat(row.amount) > 0) {
+                        let label = type;
+                        if (type === 'finance') label = '金融余额';
+                        else if (type === 'futures') label = '合约余额';
+                        else if (type === 'spot') label = '现货余额';
+                        tbody.innerHTML += `<tr><td>${label}</td><td>${row.amount}</td><td>${row.currency}</td></tr>`;
+                    }
+                }
+
+                // ✅ 现货账户详情（可用/锁定余额）
+                let token = data.spot?.find(item => item.currency === quote.toUpperCase());
+                const available = token ? token.available : '0';
+                const locked = token ? token.locked : '0';
+                tbody.innerHTML += `<tr><td>${quote} 可用余额</td><td>${available}</td><td>${quote}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${quote} 锁定余额</td><td>${locked}</td><td>${quote}</td></tr>`;
+
+                // ✅ 设置总资产
+                document.getElementById('totalAsset').innerText = `总资产：${totalAmount.toFixed(4)} ${currencySymbol}`;
+            }
+        });
+
+        // 请求 base 币种，仅展示可用/锁定余额
         axios.get(`http://localhost:8888/users/get-balance?currency=${base}`).then(res => {
             if (res.data.code === 200) {
                 const data = res.data.data;
-                const total = data.total;
-                const details = data.details;
+                let token = data.spot?.find(item => item.currency === base.toUpperCase());
+                const available = token ? token.available : '0';
+                const locked = token ? token.locked : '0';
 
-                // ✅ 总资产展示
-                document.getElementById('totalAsset').innerText = `总资产：${total.amount} ${total.currency}`;
-
-                // ✅ 分账户展示（只展示金额 > 0）
-                const tbody = document.querySelector('#assetTable tbody');
-                tbody.innerHTML = '';
-                for (let type in details) {
-                    const row = details[type];
-                    if (parseFloat(row.amount) > 0) {
-                        let label = type;
-                        if (type === 'finance') label = '金融余额';
-                        else if (type === 'futures') label = '合约余额';
-                        else if (type === 'spot') label = '现货余额';
-                        tbody.innerHTML += `<tr><td>${label}</td><td>${row.amount}</td><td>${row.currency}</td></tr>`;
-                    }
-                }
-
-                // ✅ 当前币种现货账户详情（如 BTC）
-                if (data.spot && Array.isArray(data.spot)) {
-                    const token = data.spot.find(item => item.currency === base.toUpperCase());
-                    if (token) {
-                        tbody.innerHTML += `<tr><td>${token.currency} 可用余额</td><td>${token.available}</td><td>${token.currency}</td></tr>`;
-                        tbody.innerHTML += `<tr><td>${token.currency} 锁定余额</td><td>${token.locked}</td><td>${token.currency}</td></tr>`;
-                    }
-                }
+                tbody.innerHTML += `<tr><td>${base} 可用余额</td><td>${available}</td><td>${base}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${base} 锁定余额</td><td>${locked}</td><td>${base}</td></tr>`;
             }
+        }).catch(err => {
+            console.error('获取本地资产失败', err);
+            document.getElementById('totalAsset').innerText = '资产加载失败 ❌';
         });
     }
 
-    function fetchAssetDataLocal(base) {
-        axios.get(`http://localhost:8888/users/get-balance-local?currency=${base}`).then(res => {
+
+    function fetchAssetDataLocal(pairId) {
+        const [base, quote] = pairId.split('_'); // 拆成 BTC 和 USDT
+        const tbody = document.querySelector('#assetTableLocal tbody');
+        tbody.innerHTML = ''; // 清空旧内容
+
+        let totalAmount = 0;
+        let currencySymbol = '';
+
+        // 请求 quote 币种资产（主展示）
+        axios.get(`http://localhost:8888/users/get-balance-local?currency=${quote}`).then(res => {
             if (res.data.code === 200) {
                 const data = res.data.data;
                 const total = data.total;
                 const details = data.details;
 
-                // ✅ 总资产展示
-                document.getElementById('totalAssetLocal').innerText = `总资产：${total.amount} ${total.currency}`;
+                totalAmount = parseFloat(total.amount);
+                currencySymbol = total.currency;
 
                 // ✅ 分账户展示（只展示金额 > 0）
-                const tbody = document.querySelector('#assetTableLocal tbody');
-                tbody.innerHTML = '';
                 for (let type in details) {
                     const row = details[type];
                     if (parseFloat(row.amount) > 0) {
@@ -565,37 +619,68 @@
                     }
                 }
 
-                // ✅ 当前币种现货账户详情（如 BTC / 10SET）
-                let token = null;
-                if (data.spot && Array.isArray(data.spot)) {
-                    token = data.spot.find(item => item.currency === base.toUpperCase());
-                }
+                // ✅ 现货账户详情（可用/锁定余额）
+                let token = data.spot?.find(item => item.currency === quote.toUpperCase());
+                const available = token ? token.available : '0';
+                const locked = token ? token.locked : '0';
+                tbody.innerHTML += `<tr><td>${quote} 可用余额</td><td>${available}</td><td>${quote}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${quote} 锁定余额</td><td>${locked}</td><td>${quote}</td></tr>`;
 
-                const currency = base.toUpperCase();
+                // ✅ 设置总资产
+                document.getElementById('totalAssetLocal').innerText = `总资产：${totalAmount.toFixed(4)} ${currencySymbol}`;
+            }
+        });
+
+        // 请求 base 币种，仅展示可用/锁定余额
+        axios.get(`http://localhost:8888/users/get-balance-local?currency=${base}`).then(res => {
+            if (res.data.code === 200) {
+                const data = res.data.data;
+                let token = data.spot?.find(item => item.currency === base.toUpperCase());
                 const available = token ? token.available : '0';
                 const locked = token ? token.locked : '0';
 
-                tbody.innerHTML += `<tr><td>${currency} 可用余额</td><td>${available}</td><td>${currency}</td></tr>`;
-                tbody.innerHTML += `<tr><td>${currency} 锁定余额</td><td>${locked}</td><td>${currency}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${base} 可用余额</td><td>${available}</td><td>${base}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${base} 锁定余额</td><td>${locked}</td><td>${base}</td></tr>`;
             }
+        }).catch(err => {
+            console.error('获取本地资产失败', err);
+            document.getElementById('totalAssetLocal').innerText = '资产加载失败 ❌';
         });
     }
+
+
+
+
 
 
 
     function updatePage(coinKey) {
         currentCoin = coinKey;
         document.getElementById('amountInput').placeholder = `数量（${coinKey}）`;
+
+        // ✅ 首次加载执行一次
         fetchMarketInfo(coinKey);
         fetchKlineData(coinKey);
         fetchOrderBook(coinKey);
         fetchOrderBookWithLocal(coinKey);
-        fetchAssetData(coinKey);
-        fetchAssetDataLocal(coinKey);
-        fetchLatestTrades(`${coinKey}_USDT`); // 新增调用最新成交记录
+        fetchAssetData(`${coinKey}_USDT`);
+        fetchAssetDataLocal(`${coinKey}_USDT`);
+        fetchLatestTrades(`${coinKey}_USDT`);
         fetchCurrentOrders(`${coinKey}_USDT`);
-        // fetchHistoryOrders(`${coinKey}_USDT`);
-        // fetchTradeRecords(`${coinKey}_USDT`);
+
+        //  清除旧定时器，避免重复轮询
+        if (pollingIntervalId) {
+            clearInterval(pollingIntervalId);
+        }
+
+        //  每秒轮询刷新 K 线 和 行情
+        pollingIntervalId = setInterval(() => {
+            // fetchMarketInfo(coinKey);
+            // fetchKlineData(coinKey);
+            // fetchOrderBook(coinKey);
+            // fetchOrderBookWithLocal(coinKey);
+            // fetchLatestTrades(`${coinKey}_USDT`);
+        }, 5000);
     }
 
     function renderKline(klineData) {
@@ -621,8 +706,49 @@
         });
     }
 
-    function placeOrder() {
-        alert('模拟下单成功');
+    function placeOrder(side) {
+        const pairId = `${currentCoin}_USDT`;
+        const type = document.getElementById('orderType').value === 'limit' ? 0 : 1;
+        const price = parseFloat(document.getElementById('priceInput').value);
+        const amount = parseFloat(document.getElementById('amountInput').value);
+
+        if (!amount || (type === 0 && !price)) {
+            alert('请输入正确的' + (type === 0 ? '价格和数量' : '数量'));
+            return;
+        }
+
+        const payload = {
+            pair_id: pairId,
+            type: type,
+            side: side,
+            price: type === 0 ? price : 0, // 市价不填价格
+            amount: amount
+        };
+
+        axios.post('http://localhost:8888/order/create-order', payload)
+            .then(res => {
+                if (res.data.code === 200) {
+                    alert((side === 0 ? '买入' : '卖出') + '成功 ✅');
+                    // 刷新页面关键模块（不要整页刷新）
+                    fetchCurrentOrders(pairId);
+                    fetchAssetData(pairId);
+                    fetchAssetDataLocal(pairId);
+                    fetchOrderBook(currentCoin);
+                    fetchOrderBookWithLocal(currentCoin);
+                    fetchLatestTrades(pairId);
+                    fetchMarketInfo(currentCoin);
+                    fetchKlineData(currentCoin); // 可选：刷新K线图
+                    // ✅ 清空输入框
+                    document.getElementById('priceInput').value = '';
+                    document.getElementById('amountInput').value = '';
+                } else {
+                    alert(`下单失败 ❌：${res.data.message}`);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('网络请求异常或服务器错误 ❌');
+            });
     }
 
     function loadTab(tabName) {
@@ -644,5 +770,7 @@
         fetchCoinList();
     });
 </script>
+
 </body>
+
 </html>

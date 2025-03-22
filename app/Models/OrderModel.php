@@ -58,7 +58,7 @@ class OrderModel extends \DB\SQL\Mapper {
     // 查询用户当前委托
     public function findCurrentOrders($userId, $pairId) {
         return $this->find([
-            'user_id = ? AND status IN (?, ?) AND pair_id = ?',
+            'user_id = ? AND status IN (?, ?) AND pair_id = ? ORDER BY created_at DESC',
             $userId,
             TradeConstants::STATUS_PENDING,
             TradeConstants::STATUS_PARTIAL,
@@ -69,10 +69,11 @@ class OrderModel extends \DB\SQL\Mapper {
 
     public function findCurrentOrdersAll($pairId,$limit) {
         return $this->find([
-            ' status IN (?, ?) and pair_id = ? ORDER BY `created_at` desc LIMIT ? ',
+            ' status IN (?, ?) and pair_id = ? AND type = ? ORDER BY `created_at` desc LIMIT ? ',
             TradeConstants::STATUS_PENDING,
             TradeConstants::STATUS_PARTIAL,
             $pairId,
+            TradeConstants::TYPE_LIMIT,
             $limit,
         ]);
     }
@@ -88,13 +89,11 @@ class OrderModel extends \DB\SQL\Mapper {
     }
 
     // 查询用户历史委托
-    public function findHistoryOrders($userId, $pairId, $sortField, $sortOrder) {
+    public function findHistoryOrders($userId, $pairId) {
         return $this->find([
-            'user_id = ? AND pair_id = ? ORDER BY ? ? ',
+            'user_id = ? AND pair_id = ? ORDER BY created_at desc',
             $userId,
             $pairId,
-            $sortField,
-            $sortOrder,
         ]);
     }
 

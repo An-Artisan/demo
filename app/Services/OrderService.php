@@ -43,16 +43,16 @@ class OrderService
         return $this->OrderModel->countCurrentOrders($userId);
     }
 
-    public function findHistoryOrders($userId, $pairId,$sortField, $sortOrder) {
-        return $this->OrderModel->findHistoryOrders($userId, $pairId,$sortField, $sortOrder);
+    public function findHistoryOrders($userId, $pairId) {
+        return $this->OrderModel->findHistoryOrders($userId, $pairId);
     }
 
     public function countHistoryOrders($userId) {
         return $this->OrderModel->countHistoryOrders($userId);
     }
 
-    public function findFilledOrders($userId, $pairId,$sortField, $sortOrder) {
-        return $this->OrderModel->findFilledOrders($userId, $pairId,$sortField, $sortOrder);
+    public function findFilledOrders($userId, $pairId) {
+        return $this->OrderModel->findFilledOrders($userId, $pairId);
     }
 
     public function countFilledOrders($userId) {

@@ -35,7 +35,7 @@ trait JsonResponseTrait {
             "data"    => $data,     // 数据内容，可用于传递错误的相关数据
             "message" => $message   // 错误消息，描述失败原因
         ];
-        $this->sendJsonResponse(400, $response);
+        $this->sendJsonResponse(200, $response);
     }
 
     /**
