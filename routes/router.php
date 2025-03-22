@@ -18,45 +18,50 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 
 
 
-
-// 绑定控制器方法 + 中间件（参考 Laravel 风格）
-$f3->route('GET /home/@id', function($f3, $params) {
-    Middleware::run([
-        AuthMiddleware::class,  // 认证中间件
-//        ThrottleMiddleware::class  // 限流中间件
-    ], 'app\Http\Controllers\User\TestController->Test',[$f3, $params]);
-});
-
+// ✅ 用户相关路由
 $f3->route('GET /users', function($f3, $params) {
-    Middleware::run([
-        AuthMiddleware::class,  // 认证中间件
-//        ThrottleMiddleware::class  // 限流中间件
-    ], 'app\Http\Controllers\User\UserController->index',[$f3, $params]);
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\User\UserController->index', [$f3, $params]);
 }); // 获取所有用户
 
-// API数据
-$f3->route('GET /users/get-balance', 'app\Http\Controllers\User\UserController->getBalance');
-// 本地数据
-$f3->route('GET /users/get-balance-local', 'app\Http\Controllers\User\UserController->getBalanceLocal');
+$f3->route('GET /users/@id', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\User\UserController->show', [$f3, $params]);
+}); // 获取单个用户
 
-# 登录
-$f3->route('POST /api/login', 'app\Http\Controllers\Auth\LoginController->login');
+$f3->route('POST /users', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\User\UserController->store', [$f3, $params]);
+}); // 创建用户
 
-// 登录页面（GET）
+$f3->route('PUT /users/@id', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\User\UserController->update', [$f3, $params]);
+}); // 更新用户
+
+$f3->route('DELETE /users/@id', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\User\UserController->destroy', [$f3, $params]);
+}); // 删除用户
+
+// ✅ 资产数据（API 和 本地都加上中间件）
+$f3->route('GET /users/get-balance', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\User\UserController->getBalance', [$f3, $params]);
+}); // API资产
+
+$f3->route('GET /users/get-balance-local', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\User\UserController->getBalanceLocal', [$f3, $params]);
+}); // 本地资产
+
+// ✅ 登录相关（无需中间件）
+$f3->route('POST /api/login', 'app\Http\Controllers\Auth\LoginController->login'); // 登录API
+
 $f3->route('GET /login', function($f3) {
     $f3->set('content', 'login.htm');
     echo View::instance()->render('layout.htm');
-});
+}); // 登录页面
 
+$f3->route('GET /logout', function($f3) {
+    $f3->clear('SESSION.user');
+    $f3->reroute('/login');
+}); // 退出登录
 
-// 登录页面
-$f3->route('GET /login', function($f3) {
-    $f3->set('content', 'login.htm');  // 设置 `content`，确保 `layout.htm` 能正确加载 `login.htm`
-    echo View::instance()->render('layout.htm');
-});
-
-
-// 登录成功后的首页（后台主界面）
+// ✅ 后台首页（直接在逻辑里判断）
 $f3->route('GET /dashboard', function($f3) {
     if (!$f3->exists('SESSION.user')) {
         $f3->reroute('/login');
@@ -66,106 +71,42 @@ $f3->route('GET /dashboard', function($f3) {
     echo View::instance()->render('layout.htm');
 });
 
-// 退出登录
-$f3->route('GET /logout', function($f3) {
-    $f3->clear('SESSION.user');
-    $f3->reroute('/login');
-});
+// ✅ 币种模块
+$f3->route('GET /coins/get-currency-list', 'app\Http\Controllers\Coins\CoinsController->getCurrencyList');
+$f3->route('GET /coins/get-currency-info', 'app\Http\Controllers\Coins\CoinsController->getCurrencyInfo');
+$f3->route('GET /coins/get-currency-kline', 'app\Http\Controllers\Coins\CoinsController->getCurrencyKline');
+$f3->route('GET /coins/get-currency-depth', 'app\Http\Controllers\Coins\CoinsController->getCurrencyDepth');
+$f3->route('GET /coins/get-currency-depth-local', 'app\Http\Controllers\Order\OrderController->getCurrentOrderListLocal');
+$f3->route('GET /coins/get-currency-trade', 'app\Http\Controllers\Coins\CoinsController->getCurrencyTrade');
+$f3->route('GET /coins/get-index-data', 'app\Http\Controllers\Coins\CoinsController->getIndexData');
 
+// ✅ 订单模块（建议保护订单操作）
+$f3->route('POST /order/create-order', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\Order\OrderController->createOrder', [$f3, $params]);
+}); // 下单
 
-//$f3->route('GET /show-chart', function($f3, $params) {
-//    Middleware::run([
-////        AuthMiddleware::class,  // 认证中间件
-////        ThrottleMiddleware::class  // 限流中间件
-//    ], 'app\Http\Controllers\Order\TradeController->showChart',[$f3, $params]);
-//});
+$f3->route('GET /order/get-current-order-list', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\Order\OrderController->getCurrentOrderList', [$f3, $params]);
+}); // 当前委托
 
+$f3->route('GET /order/get-history-order-list', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\Order\OrderController->getHistoryOrderList', [$f3, $params]);
+}); // 历史委托
+
+$f3->route('GET /order/get-filled-order-list', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\Order\OrderController->getFilledOrderList', [$f3, $params]);
+}); // 成交订单
+
+$f3->route('GET /order/get-latest-trades', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\Order\OrderController->getLatestTrades', [$f3, $params]);
+}); // 最新成交
+
+// ✅ 图表数据（如需保护也可加中间件）
 $f3->route('GET /trade/chart', 'app\Http\Controllers\Order\TradeController->chart');
 
-
-//$f3->route('GET /users', 'app\Http\Controllers\User\UserController->index'); // 获取所有用户
-$f3->route('GET /users/@id', 'app\Http\Controllers\User\UserController->show'); // 获取单个用户
-$f3->route('POST /users', 'app\Http\Controllers\User\UserController->store'); // 创建用户
-$f3->route('PUT /users/@id', 'app\Http\Controllers\User\UserController->update'); // 更新用户
-$f3->route('DELETE /users/@id', 'app\Http\Controllers\User\UserController->destroy'); // 删除用户
-//币种模块
-$f3->route('GET /coins/get-currency-list', 'app\Http\Controllers\Coins\CoinsController->getCurrencyList'); //交易对列表
-$f3->route('GET /coins/get-currency-info', 'app\Http\Controllers\Coins\CoinsController->getCurrencyInfo'); //交易对详情
-$f3->route('GET /coins/get-currency-kline', 'app\Http\Controllers\Coins\CoinsController->getCurrencyKline'); //币种K线
-$f3->route('GET /coins/get-currency-depth', 'app\Http\Controllers\Coins\CoinsController->getCurrencyDepth'); //币种深度
-$f3->route('GET /coins/get-currency-depth-local', 'app\Http\Controllers\Order\OrderController->getCurrentOrderListLocal'); //币种深度
-$f3->route('GET /coins/get-currency-trade', 'app\Http\Controllers\Coins\CoinsController->getCurrencyTrade'); //币种成交记录
-$f3->route('GET /coins/get-index-data', 'app\Http\Controllers\Coins\CoinsController->getIndexData'); //指数数据
-
-
-//订单模块
-$f3->route('POST /order/create-order', 'app\Http\Controllers\Order\OrderController->createOrder');
-$f3->route('GET /order/get-current-order-list', 'app\Http\Controllers\Order\OrderController->getCurrentOrderList');
-$f3->route('GET /order/get-history-order-list', 'app\Http\Controllers\Order\OrderController->getHistoryOrderList');
-$f3->route('GET /order/get-filled-order-list', 'app\Http\Controllers\Order\OrderController->getFilledOrderList');
-
-// 获取最新成交订单
-$f3->route('GET /order/get-latest-trades', 'app\Http\Controllers\Order\OrderController->getLatestTrades');
-
-/**
- * 定义路由
- */
-
-// 首页路由
-$f3->route('GET /', function ($f3) {
-    $classes = array(
-        'Base' => array(
-            'hash',
-            'json',
-            'session',
-            'mbstring'
-        ),
-        'Cache' => array(
-            'apc',
-            'apcu',
-            'memcache',
-            'memcached',
-            'redis',
-            'wincache',
-            'xcache'
-        ),
-        'DB\SQL' => array(
-            'pdo',
-            'pdo_dbapp',
-            'pdo_mssql',
-            'pdo_mysql',
-            'pdo_odbc',
-            'pdo_pgsql',
-            'pdo_sqlite',
-            'pdo_sqlsrv'
-        ),
-        'DB\Jig' => array('json'),
-        'DB\Mongo' => array(
-            'json',
-            'mongo'
-        ),
-        'Auth' => array('ldap', 'pdo'),
-        'Bcrypt' => array(
-            'openssl'
-        ),
-        'Image' => array('gd'),
-        'Lexicon' => array('iconv'),
-        'SMTP' => array('openssl'),
-        'Web' => array('curl', 'openssl', 'simplexml'),
-        'Web\Geo' => array('geoip', 'json'),
-        'Web\OpenID' => array('json', 'simplexml'),
-        'Web\OAuth2' => array('json'),
-        'Web\Pingback' => array('dom', 'xmlrpc'),
-        'CLI\WS' => array('pcntl')
-    );
-    $f3->set('classes', $classes);
-    $f3->set('content', 'welcome.htm');
-    echo View::instance()->render('layout.htm');
+// ✅ 首页
+$f3->route('GET /', function($f3) {
+    echo 'Hello World!';
 });
 
-// 用户参考页面路由
-$f3->route('GET /userref', function ($f3) {
-    $f3->set('content', 'userref.htm');
-    echo View::instance()->render('layout.htm');
-});
 return $f3;
