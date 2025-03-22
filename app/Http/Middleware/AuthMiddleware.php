@@ -5,7 +5,6 @@ namespace app\Http\Middleware;
 use app\Http\Traits\JsonResponseTrait;
 
 class AuthMiddleware extends Middleware {
-    use JsonResponseTrait;
 
     public function handle($f3): bool
     {

@@ -2,7 +2,6 @@
 
 namespace app\Http\Middleware;
 
-use app\Http\Traits\JsonResponseTrait;
 
 class ThrottleMiddleware extends Middleware {
     public function handle($f3) {
