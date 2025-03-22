@@ -147,10 +147,34 @@
         });
     }
 
+    function fetchOrderBook(base) {
+        axios.get(`http://localhost:8000/coins/get-currency-depth?currency_pair=${base}_USDT`)
+            .then(res => {
+                if (res.data.code === 200) {
+                    const asks = res.data.data.asks.slice(0, 10).reverse(); // 卖盘倒序（卖1在底部）
+                    const bids = res.data.data.bids.slice(0, 10);           // 买盘正序（买1在顶部）
+
+                    let html = '<tr><th>卖出价</th><th>卖出量</th><th>买入价</th><th>买入量</th></tr>';
+                    for (let i = 0; i < 10; i++) {
+                        const ask = asks[i] || ["", ""];
+                        const bid = bids[i] || ["", ""];
+                        html += `<tr>
+                        <td>${ask[0]}</td><td>${ask[1]}</td>
+                        <td>${bid[0]}</td><td>${bid[1]}</td>
+                    </tr>`;
+                    }
+                    document.getElementById('orderBookTable').innerHTML = html;
+                }
+            });
+    }
+
+
     function updatePage(coinKey) {
         document.getElementById('amountInput').placeholder = `数量（${coinKey}）`;
         fetchMarketInfo(coinKey);
         fetchKlineData(coinKey);
+        fetchOrderBook(coinKey);
+
     }
 
     function renderKline(klineData) {

@@ -19,16 +19,17 @@ class UserController
         $this->userService = new UserService();
     }
 
-    public function index($f3)
+    public function getBalance($f3)
     {
         $client = new GateClient();
-        // 获取单个币种的深度数据
-        $currencyPair = $f3->get('GET.currency_pair') ?? 'BTC_USDT';
+        $data         = $client->getBalance();
+        $this->success($data);
+    }
 
-        $data         = $client->getSpotTickers(['currency_pair' => $currencyPair]);
-        dd($data);
-        $users = $this->userService->getUsers();
-        $this->success($users);
+    public function index($f3)
+    {
+        $data = $this->userService->getUsers();
+        $this->success($data);
     }
 
     public function show($f3, $params)

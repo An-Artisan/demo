@@ -30,9 +30,13 @@ $f3->route('GET /home/@id', function($f3, $params) {
 $f3->route('GET /users', function($f3, $params) {
     Middleware::run([
         AuthMiddleware::class,  // 认证中间件
-        ThrottleMiddleware::class  // 限流中间件
+//        ThrottleMiddleware::class  // 限流中间件
     ], 'app\Http\Controllers\User\UserController->index',[$f3, $params]);
 }); // 获取所有用户
+
+
+$f3->route('GET /users/get-balance', 'app\Http\Controllers\User\UserController->getBalance');
+
 
 # 登录
 $f3->route('POST /api/login', 'app\Http\Controllers\Auth\LoginController->login');
@@ -66,6 +70,7 @@ $f3->route('GET /logout', function($f3) {
     $f3->clear('SESSION.user');
     $f3->reroute('/login');
 });
+
 
 //$f3->route('GET /show-chart', function($f3, $params) {
 //    Middleware::run([

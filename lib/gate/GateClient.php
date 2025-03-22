@@ -44,19 +44,31 @@ class GateClient
      * @param bool $details 是否返回详细的余额信息（默认为 false）
      * @return array|bool|float|int|object|string
      */
-    public function getBalance(bool $details = false)
+    public function getBalance(bool $details = false): array
     {
         try {
-            // 传递参数，`details` 控制是否返回详细信息
             $params = ['details' => $details];
 
-            // 调用 API 获取余额
-            $totalBalance = $this->walletApi->getTotalBalance($params);
-            return ObjectSerializer::sanitizeForSerialization($totalBalance);
+            // 获取余额对象
+            $balanceObj = $this->walletApi->getTotalBalance($params);
+
+            // 转为数组（第一层）
+            $balanceArray = ObjectSerializer::sanitizeForSerialization($balanceObj);
+            $balanceArray = get_object_vars($balanceArray);
+
+            // 如果包含 details，递归转成数组
+            if (isset($balanceArray['details'])) {
+                foreach ($balanceArray['details'] as $key => $value) {
+                    $balanceArray['details'][$key] = get_object_vars($value);
+                }
+            }
+
+            return $balanceArray;
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
     }
+
 
     /**
      * 获取所有现货交易对
@@ -115,16 +127,12 @@ class GateClient
     }
 
     /**
-     * K 线图
-     * @param string $currencyPair
-     * @param string $interval
-     * @param int $limit
-     * @param int $from
-     * @param int $to
-     * @return array|bool|float|int|object|string
+     * K线
+     * @param array $params
+     * @return array|bool|float|int|object|string|null
      * @author liuqiang
      * @email  liuqiang@smzdm.com
-     * @since  2025年03月22日17:27
+     * @since  2025年03月22日17:59
      */
     public function listCandlesticks(
         array $params
