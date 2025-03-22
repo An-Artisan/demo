@@ -7,9 +7,11 @@ use app\Models\OrderModel;
 use app\Models\TradingPairModel;
 use app\Models\UserModel;
 use app\Services\MatchingEngineService;
+use app\Services\TradingPairService;
 use Base;
-use app\Constants;
+use app\Constants\TradeConstants;
 use app\Services\OrderService;
+use lib\gate\GateClient;
 
 class OrderController extends BaseController
 {
@@ -17,10 +19,11 @@ class OrderController extends BaseController
     public function createOrder($f3)
     {
         // 获取用户输入
-        $userId = get_current_user_id();
+        $userId = get_current_uid();
+//        $userId = 3;
         $pairId = $f3->get('POST.pair_id');
-        $type   = $f3->get('POST.type'); // 使用常量 TradeConstants::TYPE_LIMIT 或 TradeConstants::TYPE_MARKET
-        $side   = $f3->get('POST.side'); // 使用常量 TradeConstants::SIDE_BUY 或 TradeConstants::SIDE_SELL
+        $type   = $f3->get('POST.type', TradeConstants::TYPE_LIMIT); // 使用常量 TradeConstants::TYPE_LIMIT 或 TradeConstants::TYPE_MARKET
+        $side   = $f3->get('POST.side', TradeConstants::SIDE_BUY); // 使用常量 TradeConstants::SIDE_BUY 或 TradeConstants::SIDE_SELL
         $price  = $f3->get('POST.price'); // 限价单需要价格
         $amount = $f3->get('POST.amount');// 委托数量
         if (!$userId){
@@ -28,17 +31,18 @@ class OrderController extends BaseController
             return;
         }
         // 验证输入
-        if (!$pairId || !$type || !$side || !$price || !$amount) {
-            $this->error(400, 'Invalid input');
+        if (!$pairId) {
+            $this->error(400, 'Invalid input pairId');
             return;
         }
-        $tradingPairModel = new TradingPairModel();
-        $tradingPair      = $tradingPairModel->findById($pairId);
+
+        $TradingPairService = new TradingPairService();
+        $tradingPair      = $TradingPairService->findById($pairId);
         if (!$tradingPair) {
             $this->error(400, 'Invalid trading pair');
             return;
         }
-        if ($type == Constants::TYPE_LIMIT && $price <= 0) {
+        if ($type == TradeConstants::TYPE_LIMIT && $price <= 0) {
             $this->error(400, 'Invalid price');
             return;
         }
@@ -54,22 +58,38 @@ class OrderController extends BaseController
             return;
         }
 
-        if ($type == Constants::TYPE_LIMIT) {
-            if ($side == Constants::SIDE_BUY && $user->available_balance < $amount * $price) {
+        $balance = get_object_vars(json_decode($user['balance']));
+        $balance = array_change_key_case($balance, CASE_LOWER);
+        //拆解交易对
+        $tradingPair = explode('_', $pairId);
+        $tradingPair = array_map('strtolower', $tradingPair);
+
+        $currency_base_balance = $balance[$tradingPair[0]];//交易对的基础币余额
+        $currency_quote_balance = $balance[$tradingPair[1]];//交易对的计价币余额
+
+        //检查余额是否足够 限价单
+        if ($type == TradeConstants::TYPE_LIMIT) {
+
+            //限价买入 计价币余额必须大于等于 委托数量 * 价格
+            if ($side == TradeConstants::SIDE_BUY && $currency_quote_balance < $amount * $price) {
                 $this->error(400, 'Insufficient balance');
                 return;
             }
-            if ($side == Constants::SIDE_SELL && $user->available_balance < $amount) {
-                $this->error(400, 'Insufficient balance');
+            //限价卖出 基础币余额必须大于等于 委托数量
+            if ($side == TradeConstants::SIDE_SELL && $currency_base_balance < $amount) {
+                $this->error(400, 'Insufficient amount to sell');
                 return;
             }
         } else {
-            if ($side == Constants::SIDE_BUY && $user->available_balance < $amount) {
+            //检查余额是否足够 市价单
+            //市价买入 用户计价币余额小于等于0返回异常
+            if ($side == TradeConstants::SIDE_BUY && $currency_quote_balance <= 0) {
                 $this->error(400, 'Insufficient balance');
                 return;
             }
-            if ($side == Constants::SIDE_SELL && $user->available_balance < $amount * $tradingPair->price) {
-                $this->error(400, 'Insufficient balance');
+            //市价卖出 用户基础币余额需小于委托数量
+            if ($side == TradeConstants::SIDE_SELL && $currency_base_balance < $amount ) {
+                $this->error(400, 'Insufficient amount to sell');
                 return;
             }
         }
@@ -78,10 +98,11 @@ class OrderController extends BaseController
             'user_id'    => $userId,
             'pair_id'    => $pairId,
             'type'       => $type,
-           'side'       => $side,
+            'side'       => $side,
             'price'      => $price,
             'amount'     => $amount
         ];
+
         $OrderService = new OrderService();
         $order_id     = $OrderService->createOrder($order);
 
@@ -95,26 +116,26 @@ class OrderController extends BaseController
     }
 
     // 获取用户当前委托列表（带分页）
-    public function getCurrentOrders($f3)
+    public function getCurrentOrderList($f3)
     {
         // 获取用户ID
-        $userId = get_current_user_id();
-
+        $userId = get_current_uid();
+//        $userId = 1;
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
         $limit  = $f3->get('GET.limit') ? (int)$f3->get('GET.limit') : 10;
         $offset = ($page - 1) * $limit;
 
         // 查询用户当前委托（未完全成交的订单）
-        $orderModel = new OrderModel();
-        $orders     = $orderModel->findCurrentOrders($userId, $limit, $offset);
+        $OrderService = new OrderService();
+        $orders     = $OrderService->findCurrentOrders($userId, $limit, $offset);
 
         // 查询总记录数
-        $total = $orderModel->countCurrentOrders($userId);
+        $total = $OrderService->countCurrentOrders($userId);
 
         // 格式化返回数据
         $result = [
-            'data'       => [],
+            'list'       => [],
             'pagination' => [
                 'page'        => $page,
                 'limit'       => $limit,
@@ -123,7 +144,7 @@ class OrderController extends BaseController
             ]
         ];
         foreach ($orders as $order) {
-            $result['data'][] = [
+            $result['list'][] = [
                 'order_id'      => $order->order_id,
                 'pair_id'       => $order->pair_id,
                 'type'          => $order->type,
@@ -141,10 +162,11 @@ class OrderController extends BaseController
     }
 
     // 获取用户历史委托列表
-    public function getHistoryOrders($f3)
+    public function getHistoryOrderList($f3)
     {
         // 获取用户ID
-        $userId = get_current_user_id();
+        $userId = get_current_uid();
+//        $userId = 1;
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;
@@ -156,15 +178,15 @@ class OrderController extends BaseController
         $sortOrder = $f3->get('GET.sort_order') ?: 'DESC';
 
         // 查询用户历史委托
-        $orderModel = new OrderModel();
-        $orders     = $orderModel->findHistoryOrders($userId, $limit, $offset, $sortField, $sortOrder);
+        $OrderService = new OrderService();
+        $orders     = $OrderService->findHistoryOrders($userId, $limit, $offset, $sortField, $sortOrder);
 
         // 查询总记录数
-        $total = $orderModel->countHistoryOrders($userId);
+        $total = $OrderService->countHistoryOrders($userId);
 
         // 格式化返回数据
         $result = [
-            'data'       => [],
+            'list'       => [],
             'pagination' => [
                 'page'        => $page,
                 'limit'       => $limit,
@@ -173,7 +195,7 @@ class OrderController extends BaseController
             ]
         ];
         foreach ($orders as $order) {
-            $result['data'][] = [
+            $result['list'][] = [
                 'order_id'      => $order->order_id,
                 'pair_id'       => $order->pair_id,
                 'type'          => $order->type,
@@ -192,10 +214,10 @@ class OrderController extends BaseController
     }
 
     // 获取用户成交记录列表
-    public function getFilledOrders($f3)
+    public function getFilledOrderList($f3)
     {
         // 获取用户ID
-        $userId = get_current_user_id();
+        $userId = get_current_uid();
 
         // 获取分页参数
         $page   = $f3->get('GET.page') ? (int)$f3->get('GET.page') : 1;

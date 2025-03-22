@@ -95,8 +95,12 @@ $f3->route('GET /coins/get-currency-trade', 'app\Http\Controllers\Coins\CoinsCon
 $f3->route('GET /coins/get-index-data', 'app\Http\Controllers\Coins\CoinsController->getIndexData'); //指数数据
 
 
-$f3->route('GET /order/get-latest-trades', 'app\Http\Controllers\Order\OrderController->getLatestTrades'); //指数数据
+//订单模块
+$f3->route('POST /order/create-order', 'app\Http\Controllers\Order\OrderController->createOrder');
+$f3->route('GET /order/get-current-order-list', 'app\Http\Controllers\Order\OrderController->getCurrentOrderList');
+$f3->route('GET /order/get-history-order-list', 'app\Http\Controllers\Order\OrderController->getHistoryOrderList');
 
+$f3->route('GET /order/get-latest-trades', 'app\Http\Controllers\Order\OrderController->getLatestTrades'); //指数数据
 
 /**
  * 定义路由
