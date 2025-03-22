@@ -119,7 +119,7 @@
     let currentCoin = 'BTC';
 
     function fetchCoinList() {
-        axios.get('http://localhost:8000/coins/get-currency-list').then(res => {
+        axios.get('http://localhost:8888/coins/get-currency-list').then(res => {
             if (res.data.code === 200) {
                 let list = res.data.data;
                 const priority = ['BTC_USDT', 'ETH_USDT'];
@@ -142,7 +142,7 @@
     }
 
     function fetchMarketInfo(base) {
-        axios.get('http://localhost:8000/coins/get-currency-info?currency_pair=' + `${base}_USDT`).then(res => {
+        axios.get('http://localhost:8888/coins/get-currency-info?currency_pair=' + `${base}_USDT`).then(res => {
             if (res.data.code === 200) {
                 const info = res.data.data.find(item => item.currency_pair === `${base}_USDT`);
                 if (info) {
@@ -156,7 +156,7 @@
     }
 
     function fetchKlineData(base) {
-        axios.get(`http://localhost:8000/coins/get-currency-kline?currency_pair=${base}_USDT&interval=1h&limit=1000`).then(res => {
+        axios.get(`http://localhost:8888/coins/get-currency-kline?currency_pair=${base}_USDT&interval=1h&limit=1000`).then(res => {
             if (res.data.code === 200) {
                 const klineRaw = res.data.data;
                 const klineFormatted = klineRaw.map(item => {
@@ -174,7 +174,7 @@
     }
 
     function fetchOrderBook(base) {
-        axios.get(`http://localhost:8000/coins/get-currency-depth?currency_pair=${base}_USDT`)
+        axios.get(`http://localhost:8888/coins/get-currency-depth?currency_pair=${base}_USDT`)
             .then(res => {
                 if (res.data.code === 200) {
                     const asks = res.data.data.asks.slice(0, 10).reverse(); // 卖盘倒序（卖1在底部）
@@ -194,7 +194,7 @@
             });
     }
     function fetchOrderBookWithLocal(base) {
-        axios.get(`http://localhost:8000/coins/get-currency-depth?currency_pair=${base}_USDT`)
+        axios.get(`http://localhost:8888/coins/get-currency-depth?currency_pair=${base}_USDT`)
             .then(res => {
                 if (res.data.code === 200) {
                     const asks = res.data.data.asks.slice(0, 10).reverse(); // 卖盘倒序（卖1在底部）
@@ -215,7 +215,7 @@
     }
 
     function fetchLatestTrades(pairId) {
-        axios.get(`http://localhost:8000/order/get-latest-trades?pair_id=${pairId}`).then(res => {
+        axios.get(`http://localhost:8888/order/get-latest-trades?pair_id=${pairId}`).then(res => {
             if (res.data.code === 200) {
                 const list = res.data.data.list;
                 const table = document.querySelector('#tradeTable tbody');
@@ -232,7 +232,7 @@
         });
     }
     function fetchLatestTradesLocal(pairId) {
-        axios.get(`http://localhost:8000/order/get-latest-trades?pair_id=${pairId}`).then(res => {
+        axios.get(`http://localhost:8888/order/get-latest-trades?pair_id=${pairId}`).then(res => {
             if (res.data.code === 200) {
                 const list = res.data.data.list;
                 const table = document.querySelector('#tradeTableLocal tbody');
@@ -250,7 +250,7 @@
     }
 
     function fetchAssetData(base) {
-        axios.get(`http://localhost:8000/users/get-balance?currency=${base}`).then(res => {
+        axios.get(`http://localhost:8888/users/get-balance?currency=${base}`).then(res => {
             if (res.data.code === 200) {
                 const data = res.data.data;
                 const total = data.total;
@@ -286,7 +286,7 @@
     }
 
     function fetchAssetDataLocal(base) {
-        axios.get(`http://localhost:8000/users/get-balance?currency=${base}`).then(res => {
+        axios.get(`http://localhost:8888/users/get-balance?currency=${base}`).then(res => {
             if (res.data.code === 200) {
                 const data = res.data.data;
                 const total = data.total;
@@ -333,7 +333,6 @@
         fetchAssetDataLocal(coinKey);
         fetchLatestTrades(`${coinKey}_USDT`); // 新增调用最新成交记录
         fetchLatestTradesLocal(`${coinKey}_USDT`);
-
     }
 
     function renderKline(klineData) {
