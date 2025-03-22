@@ -28,11 +28,16 @@ $config = require $configFile;
 
 // 数据库连接
 if (!isset($db)) {
-    $db = new DB\SQL(
-        "mysql:host={$config['database']['host']};port={$config['database']['port']};dbname={$config['database']['dbname']}",
-        $config['database']['username'],
-        $config['database']['password']
-    );
+    try {
+        $db = new DB\SQL(
+            "mysql:host={$config['database']['host']};port={$config['database']['port']};dbname={$config['database']['dbname']}",
+            $config['database']['username'],
+            $config['database']['password']
+        );
+    } catch (\Exception $e) {
+        dd($e->getMessage());
+    }
+
     $f3->set('DB', $db);
 }
 
