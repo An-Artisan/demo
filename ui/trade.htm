@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gate.io 交易界面 </title>
+
+    <!-- Luxon日期库 -->
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+
+    <!-- Chart.js 核心库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <!-- 配置日期适配器 -->
+    <script>
+        Chart.register(Chart.adapters.date.luxonAdapter()); // 注册适配器
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.min.css">
+
+    <link rel="stylesheet" href="/ui/css/trade.css"> <!-- 外部CSS -->
+    <script type="module" src="/ui/js/trade.js"></script> <!-- 模块化JS -->
+</head>
+<body>
+<div id="app">
+    <header class="header">
+        <h1 class="logo">Gate.io</h1>
+        <div class="theme-toggle" onclick="Theme.toggle()"></div>
+    </header>
+
+    <main class="container">
+        <!-- 市场信息 -->
+        <div class="market-info">
+            <div class="price-ticker">
+                <span id="lastPrice">Loading...</span>
+                <span class="price-change" id="priceChange"></span>
+            </div>
+            <div class="stats">
+                <div>24h Volume: <span id="volume"></span></div>
+                <div>High: <span id="high"></span></div>
+                <div>Low: <span id="low"></span></div>
+            </div>
+        </div>
+
+        <!-- 交易面板 -->
+        <div class="trade-panel">
+            <h2>BTC/USDT 交易</h2>
+            <form id="tradeForm" onsubmit="return Trade.placeOrder(event)">
+                <div class="form-group">
+                    <label>数量</label>
+                    <input type="number" id="amount" step="0.0001" required>
+                </div>
+                <div class="form-group">
+                    <label>价格</label>
+                    <input type="number" id="price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="cta-button">下单</button>
+                    <span class="loading-spinner" id="orderLoader"></span>
+                </div>
+            </form>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="chart-wrapper">
+            <div class="chart-header">
+                <span class="interval-selector" onclick="Chart.toggleInterval()">1H ▼</span>
+                <div class="range-selector">
+                    <button onclick="Chart.setRange('1D')">1D</button>
+                    <button onclick="Chart.setRange('7D')">7D</button>
+                    <button onclick="Chart.setRange('30D')">30D</button>
+                </div>
+            </div>
+            <canvas id="klineChart" class="chart-canvas"></canvas>
+        </div>
+
+        <!-- 订单簿 -->
+        <div class="order-book" id="orderBookContainer">
+            <h2>订单簿</h2>
+            <div class="book-side bids">
+                <div class="header">买盘</div>
+                <div class="entries" id="bidsList"></div>
+            </div>
+            <div class="book-side asks">
+                <div class="header">卖盘</div>
+                <div class="entries" id="asksList"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="copyright">© 2025 Gate.io 版权所有</div>
+        <div class="version">v2.3.1</div>
+    </footer>
+</div>
+</body>
+</html>

@@ -6,7 +6,7 @@ namespace app\Http\Controllers\Order;
 use app\Http\Controllers\BaseController;
 use Template;
 
-class ChartController extends BaseController
+class TradeController extends BaseController
 {
     // 显示K线图页面
     public function chart($f3)
@@ -17,7 +17,7 @@ class ChartController extends BaseController
             ['time' => '2025-03-22 06:15', 'open' => 30050, 'high' => 30200, 'low' => 30000, 'close' => 30150],
             ['time' => '2025-03-22 06:30', 'open' => 30150, 'high' => 30300, 'low' => 30100, 'close' => 30200],
         ]);
-        echo Template::instance()->render('chart.html');
+        echo Template::instance()->render('trade.htm');
     }
 
 
