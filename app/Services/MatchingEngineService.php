@@ -8,6 +8,17 @@ use App\Models\TradeModel;
 use App\Models\TradingPairModel;
 use App\Models\UserModel;
 
+/**
+ * 批量交易对订单撮合引擎实现
+ *
+ * 该类实现了批量执行所有交易对（BTC_USDT 和 ETH_USDT）的订单撮合逻辑，
+ * 支持市价买单、限价买单、限价卖单与市价卖单之间的撮合规则，
+ * 并遵循价格/时间优先原则，同时使用高精度数学函数处理价格和数量计算。
+ *
+ * @author artisan
+ * @email  g1090045743@gmail.com
+ * @since  2025年03月23日23:52
+ */
 class MatchingEngineService {
 
     /**
@@ -15,10 +26,13 @@ class MatchingEngineService {
      *
      * 此方法固定了两个交易对，分别为 BTC_USDT 和 ETH_USDT，
      * 然后依次调用 matchOrders() 方法对每个交易对进行撮合。
+     *
      * @throws \Exception
+     * @author artisan
+     * @email  g1090045743@gmail.com
+     * @since  2025年03月23日23:52
      */
     public function matchAllPairs() {
-
         // 固定交易对列表：BTC_USDT 和 ETH_USDT
         $pairList = ['BTC_USDT', 'ETH_USDT'];
 
@@ -26,8 +40,7 @@ class MatchingEngineService {
         foreach ($pairList as $pairId) {
             $this->matchOrders($pairId);
         }
-
-//        logger()->write("撮合脚本执行完毕", 'info');
+        // logger()->write("撮合脚本执行完毕", 'info');
     }
 
     /**
@@ -37,10 +50,13 @@ class MatchingEngineService {
      * 它会进行订单验证、计算成交价格和成交数量，
      * 更新订单状态，记录成交记录并更新用户资产。
      *
+     * @param string $pairId 交易对ID
      * @throws \Exception 当撮合过程中出现异常时，抛出异常并回滚数据库事务。
+     * @author artisan
+     * @email  g1090045743@gmail.com
+     * @since  2025年03月24日00:32
      */
     public function matchOrders($pairId) {
-
         $db = db();
         $orderModel = new OrderModel();
         $tradeModel = new TradeModel();
@@ -58,7 +74,6 @@ class MatchingEngineService {
             }
             // 遍历所有买单
             foreach ($buyOrders as $buyOrder) {
-
                 // 对每个买单遍历所有卖单
                 foreach ($sellOrders as $sellOrder) {
                     // 排除同一用户的订单（防止自己与自己撮合）
@@ -191,14 +206,17 @@ class MatchingEngineService {
      * 包括释放锁定的资金、增加对应资产的可用余额，
      * 并写入资产流水记录。
      *
-     * @param int $buyerId 买家用户ID
-     * @param int $sellerId 卖家用户ID
-     * @param string $pairId 交易对ID
-     * @param string $amount 成交数量
-     * @param string $price 成交价格
-     * @param int $buyOrderId 买单订单ID
-     * @param int $sellOrderId
+     * @param int    $buyerId    买家用户ID
+     * @param int    $sellerId   卖家用户ID
+     * @param string $pairId     交易对ID
+     * @param string $amount     成交数量
+     * @param string $price      成交价格
+     * @param int    $buyOrderId 买单订单ID
+     * @param int    $sellOrderId 卖单订单ID
      * @throws \Exception
+     * @author artisan
+     * @email  g1090045743@gmail.com
+     * @since  2025年03月23日23:52
      */
     private function updateUserAssets(int $buyerId, int $sellerId, string $pairId, string $amount, string $price, int $buyOrderId, int $sellOrderId) {
         $assetLedgerModel = new AssetLedgerModel();
