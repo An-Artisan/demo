@@ -68,11 +68,11 @@ class OrderModel extends \DB\SQL\Mapper {
 
     public function findCurrentOrdersAll($pairId,$limit) {
         return $this->find([
-            ' status IN (?, ?) and pair_id = ? AND type = ? ORDER BY `created_at` desc LIMIT ? ',
+            ' status IN (?, ?) and pair_id = ?  ORDER BY `created_at` desc LIMIT ? ',
             TradeConstants::STATUS_PENDING,
             TradeConstants::STATUS_PARTIAL,
             $pairId,
-            TradeConstants::TYPE_LIMIT,
+//            TradeConstants::TYPE_LIMIT,
             $limit,
         ]);
     }

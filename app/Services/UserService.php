@@ -120,6 +120,12 @@ class UserService
 
         // 市价单
         if ($type == TradeConstants::TYPE_MARKET) {
+            /**
+             * Binance    市价单若无深度，拒绝下单
+             * OKX / Gate    市价单允许提交，但进入“排队”状态，后台维护一个挂单队列，等待对手方挂出深度再成交
+             * 火币    部分场景下，转为限价单（限价价格为滑点保护价）
+             * 这里如果无深度就拒绝下单，但是深度不够也可以下单，可以拆单。
+             */
             if ($side == TradeConstants::SIDE_BUY) {
                 $marketBuyCost = OrderService::calculateMarketBuyCost($pairId, $amount, TradeConstants::MARKET_ORDER_BUFFER_RATE);
                 if (!$marketBuyCost['success']) {
@@ -131,15 +137,15 @@ class UserService
                 $marketBuyCost['type'] = 'market_buy';
                 $marketBuyCost['currency'] = $quote;
             } else {
-                if (bccomp($baseBalance, $amount, 8) < 0) {
-                    return ['success' => false, 'message' => 'Insufficient amount to sell'];
+                $marketBuyCost = OrderService::calculateMarketSellIncome($pairId, $amount, TradeConstants::MARKET_ORDER_BUFFER_RATE);
+                if (!$marketBuyCost['success']) {
+                    return ['success' => false, 'message' => $marketBuyCost['message'] ?? 'Error calculating cost'];
                 }
-                $marketBuyCost = [
-                    'locked_balance' => $amount,
-                    'cost' => $amount,
-                    'type' => 'market_sell',
-                    'currency' => $base
-                ];
+                if (bccomp($quoteBalance, $marketBuyCost['locked_balance'], 8) < 0) {
+                    return ['success' => false, 'message' => 'Insufficient balance for market sell'];
+                }
+                $marketBuyCost['type'] = 'market_buy';
+                $marketBuyCost['currency'] = $quote;
             }
         }
 

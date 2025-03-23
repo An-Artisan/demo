@@ -149,6 +149,7 @@ class OrderService
              FROM orders
              WHERE pair_id = ?
                AND side = 1 -- 卖出单
+               AND type = 0
                AND status IN (0, 1)
                AND (amount - filled_amount) > 0
              ORDER BY price ASC
@@ -166,6 +167,33 @@ class OrderService
 
         return $asks;
     }
+    public static function getBids(string $pairId, int $limit = 10): array
+    {
+        $db = db();
+
+        $result = $db->exec(
+            "SELECT price, (amount - filled_amount) AS amount
+             FROM orders
+             WHERE pair_id = ?
+               AND side = 0 -- 买入单
+               AND type = 0
+               AND status IN (0, 1)
+               AND (amount - filled_amount) > 0
+             ORDER BY price DESC
+             LIMIT ?",
+            [$pairId, $limit]
+        );
+
+        // 格式化为纯字符串（防止浮点问题）
+        $bids = array_map(function ($row) {
+            return [
+                'price' => (string)$row['price'],
+                'amount' => (string)$row['amount'],
+            ];
+        }, $result);
+
+        return $bids;
+    }
 
     /**
      * 根据买入数量，动态吃深度，计算市价买单所需 USDT
@@ -173,6 +201,8 @@ class OrderService
      * @param string $pairId
      * @param string $amount 计划买入的 BTC 数量
      * @param string $bufferRate 默认 1.01（1% buffer）
+     * @author liuqiang
+     * @email g1090035743@gmail.com
      * @return array [
      *     'success' => true,
      *     'cost' => string,
@@ -183,40 +213,128 @@ class OrderService
      */
     public static function calculateMarketBuyCost(string $pairId, string $amount, string $bufferRate = '1.01'): array
     {
-        $asks = self::getAsks($pairId);
-        $remaining = $amount;
-        $cost = '0';
-        $usedAsks = [];
+        // 获取当前交易对的卖盘深度（asks）
+        $asks = OrderService::getAsks($pairId);
 
+        // 如果卖盘为空，说明市场没有卖单，不能成交
+        if (empty($asks)) {
+            return ['success' => false, 'message' => '市场无卖盘深度，无法成交'];
+        }
+
+        $remaining = $amount;  // 用户还希望成交的数量
+        $cost = '0';           // 累计的成交总成本
+        $usedAsks = [];        // 实际吃掉的卖盘记录，用于记录撮合路径
+
+        // 遍历卖盘，按从低到高的价格吃单
         foreach ($asks as $ask) {
-            $askPrice = $ask['price'];
-            $askVolume = $ask['amount'];
+            $askPrice = $ask['price'];         // 当前卖盘价格
+            $askVolume = $ask['amount'];       // 当前卖盘数量
+
+            // 当前轮最多吃多少：min(卖盘数量, 剩余需求)
             $fill = bccomp($remaining, $askVolume, 8) > 0 ? $askVolume : $remaining;
+
+            // 当前轮吃掉的成本 = 数量 * 单价
             $costPart = bcmul($fill, $askPrice, 8);
+            // 累加进总成本
             $cost = bcadd($cost, $costPart, 8);
+            // 记录本次吃单的详细信息
             $usedAsks[] = [
                 'price' => $askPrice,
                 'amount' => $fill,
                 'cost' => $costPart
             ];
+
+            // 更新剩余未成交数量
             $remaining = bcsub($remaining, $fill, 8);
+
+            // 如果买够了，就跳出循环
             if (bccomp($remaining, '0', 8) <= 0) break;
         }
 
-        if (bccomp($remaining, '0', 8) > 0) {
-            return ['success' => false, 'message' => 'Insufficient depth to fulfill market buy'];
+        // 实际成交的总数量 = 用户原始请求 - 剩余没吃掉的
+        $filledAmount = bcsub($amount, $remaining, 8);
+
+        // 如果一个都没成交（深度不足），拒绝下单
+        if (bccomp($filledAmount, '0', 8) <= 0 || bccomp($cost, '0', 8) <= 0) {
+            return ['success' => false, 'message' => '市场深度不足，无法完成任何成交'];
         }
 
-        $bufferedCost = bcmul($cost, $bufferRate, 8);
+        // 计算 buffer：多预留出 bufferRate% 的资金来冻结，避免撮合失败
+        // 例如：bufferRate = 1.01，表示加 1%
+        $buffer = bcmul($cost, bcsub($bufferRate, '1', 8), 8);
 
+        // 加上 buffer 后的总冻结成本
+        $bufferedCost = bcadd($cost, $buffer, 8);
+        // 返回包含撮合路径、成本、实际吃单等信息
         return [
             'success' => true,
-            'cost' => $cost,
-            'buffered_cost' => $bufferedCost,
-            'used_asks' => $usedAsks,
-            'locked_balance' => $bufferedCost
+            'partial_filled' => bccomp($remaining, '0', 8) > 0, // 是否部分成交
+            'cost' => $cost,                        // 原始总成本
+            'buffered_cost' => $bufferedCost,       // 含 buffer 的成本
+            'locked_balance' => $bufferedCost,      // 实际需要冻结的资金
+            'filled_amount' => $filledAmount,       // 实际成交数量
+            'used_asks' => $usedAsks                // 撮合路径记录
         ];
     }
 
 
+    // 市价卖单：卖出 X 个币，系统从买盘（bids）里依次成交
+    public static function calculateMarketSellIncome(string $pairId, string $amount): array
+    {
+        // 获取当前交易对的买盘深度（bids）
+        $bids = OrderService::getBids($pairId);
+        // 如果买盘为空，说明市场没人买，不能成交
+        if (empty($bids)) {
+            return ['success' => false, 'message' => '市场无买盘深度，无法成交'];
+        }
+
+        $remaining = $amount;  // 用户还希望卖出的数量
+        $income = '0';         // 累计卖出获得的总收入
+        $usedBids = [];        // 实际吃掉的买盘记录
+
+        // 遍历买盘，按从高到低价格吃单（价格越高越优先）
+        foreach ($bids as $bid) {
+            $bidPrice = $bid['price'];         // 当前买盘价格
+            $bidVolume = $bid['amount'];       // 当前买盘可买数量
+
+            // 当前轮最多卖多少：min(买盘量, 剩余可卖)
+            $fill = bccomp($remaining, $bidVolume, 8) > 0 ? $bidVolume : $remaining;
+
+            // 当前轮卖出获得的收入 = 数量 * 单价
+            $incomePart = bcmul($fill, $bidPrice, 8);
+
+            // 累加总收入
+            $income = bcadd($income, $incomePart, 8);
+
+            // 记录本次吃单记录
+            $usedBids[] = [
+                'price' => $bidPrice,
+                'amount' => $fill,
+                'income' => $incomePart
+            ];
+
+            // 更新剩余未成交量
+            $remaining = bcsub($remaining, $fill, 8);
+
+            // 如果卖完了就退出循环
+            if (bccomp($remaining, '0', 8) <= 0) break;
+        }
+
+        // 实际成交数量 = 用户原始卖出量 - 剩余未成交量
+        $filledAmount = bcsub($amount, $remaining, 8);
+
+        // 如果一个都没成交，拒绝下单
+        if (bccomp($filledAmount, '0', 8) <= 0 || bccomp($income, '0', 8) <= 0) {
+            return ['success' => false, 'message' => '市场买盘不足，无法完成任何成交'];
+        }
+
+        return [
+            'success' => true,
+            'partial_filled' => bccomp($remaining, '0', 8) > 0, // 是否部分成交
+            'income' => $income,                    // 总共获得的收入
+            'locked_balance' => $filledAmount,      // 实际需要冻结的币数量
+            'filled_amount' => $filledAmount,       // 实际卖出数量
+            'used_bids' => $usedBids                // 撮合路径记录
+        ];
+    }
 }
