@@ -28,6 +28,21 @@ class OrderService
         // 返回订单ID
         return $orderId;
     }
+    public function cancelOrder($orderId)
+    {
+        if (empty($orderId)) {
+            logger()->write("Empty data passed to cancelOrder()", 'error');
+            return false;
+        }
+        // 取消订单
+        $result = $this->OrderModel->cancelOrder($orderId);
+        // 返回结果
+        return $result;
+    }
+
+    public function findOrderById($orderId) {
+        return $this->OrderModel->findById($orderId);
+    }
 
 
     public function findCurrentOrders($userId, $pairId) {

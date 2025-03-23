@@ -15,8 +15,7 @@ class OrderModel extends \DB\SQL\Mapper {
 
     // 根据订单ID查找订单
     public function findById($orderId) {
-        $this->load(['order_id = ?', $orderId]);
-        return $this->query;
+        return $this->load(['order_id = ?', $orderId]);
     }
 
     // 根据用户ID查找用户订单
@@ -44,7 +43,7 @@ class OrderModel extends \DB\SQL\Mapper {
     public function cancelOrder($orderId) {
         $this->load(['order_id = ?', $orderId]);
         $this->status = TradeConstants::STATUS_CANCELED;
-        $this->save();
+        return $this->save();
     }
 
 
@@ -52,7 +51,7 @@ class OrderModel extends \DB\SQL\Mapper {
     public function updateStatus($orderId, $status) {
         $this->load(['order_id = ?', $orderId]);
         $this->status = $status;
-        $this->save();
+        return $this->save();
     }
 
     // 查询用户当前委托

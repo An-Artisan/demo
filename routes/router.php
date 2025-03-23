@@ -85,6 +85,12 @@ $f3->route('POST /order/create-order', function($f3, $params) {
     Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\Order\OrderController->createOrder', [$f3, $params]);
 }); // 下单
 
+$f3->route('POST /order/cancel-order', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\Order\OrderController->cancelOrder', [$f3, $params]);
+}); // 取消订单
+
+
+
 $f3->route('GET /order/get-current-order-list', function($f3, $params) {
     Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\Order\OrderController->getCurrentOrderList', [$f3, $params]);
 }); // 当前委托

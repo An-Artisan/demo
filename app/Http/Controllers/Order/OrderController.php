@@ -19,11 +19,11 @@ class OrderController extends BaseController
     public function createOrder($f3)
     {
         $userId = get_current_uid();
-        $body = json_decode($f3->get('BODY'), true);
+        $body   = json_decode($f3->get('BODY'), true);
         $pairId = $body['pair_id'] ?? 'BTC_USDT';
-        $type = $body['type'] ?? 0;
-        $side = $body['side'] ?? 0;
-        $price = $body['price'] ?? 0;
+        $type   = $body['type'] ?? 0;
+        $side   = $body['side'] ?? 0;
+        $price  = $body['price'] ?? 0;
         $amount = $body['amount'] ?? 0;
 
         if (!$userId) {
@@ -37,7 +37,7 @@ class OrderController extends BaseController
         }
 
         $TradingPairService = new TradingPairService();
-        $tradingPair = $TradingPairService->findById($pairId);
+        $tradingPair        = $TradingPairService->findById($pairId);
         if (!$tradingPair) {
             $this->error(400, 'Invalid trading pair');
             return;
@@ -54,15 +54,15 @@ class OrderController extends BaseController
         }
 
         $userModel = new UserModel();
-        $user = $userModel->findById($userId);
+        $user      = $userModel->findById($userId);
         if (!$user) {
             $this->error(400, 'Invalid user');
             return;
         }
 
-        $tradingPair = explode('_', $pairId);
-        $tradingPair = array_map('strtolower', $tradingPair);
-        $currency_base_balance = 0;
+        $tradingPair            = explode('_', $pairId);
+        $tradingPair            = array_map('strtolower', $tradingPair);
+        $currency_base_balance  = 0;
         $currency_quote_balance = 0;
 
         $balance = get_object_vars(json_decode($user['balance']));
@@ -79,7 +79,8 @@ class OrderController extends BaseController
         }
 
         if ($type == TradeConstants::TYPE_LIMIT) {
-            if ($side == TradeConstants::SIDE_BUY && bccomp($currency_quote_balance, bcmul($amount, $price, 8), 8) < 0) {
+            if ($side == TradeConstants::SIDE_BUY && bccomp($currency_quote_balance, bcmul($amount, $price, 8),
+                    8) < 0) {
                 $this->error(400, 'Insufficient balance');
                 return;
             }
@@ -101,14 +102,14 @@ class OrderController extends BaseController
         $order = [
             'user_id' => $userId,
             'pair_id' => $pairId,
-            'type' => $type,
-            'side' => $side,
-            'price' => $price,
-            'amount' => $amount
+            'type'    => $type,
+            'side'    => $side,
+            'price'   => $price,
+            'amount'  => $amount
         ];
 
         $OrderService = new OrderService();
-        $order_id = $OrderService->createOrder($order);
+        $order_id     = $OrderService->createOrder($order);
 
         if ($order_id) {
             $this->success(['order_id' => $order_id], 'Order placed successfully');
@@ -116,6 +117,50 @@ class OrderController extends BaseController
             $this->error(500, 'Failed to place order');
         }
     }
+
+    // 用户撤销订单
+    public function cancelOrder($f3)
+    {
+        $userId  = get_current_uid();
+        $body    = json_decode($f3->get('BODY'), true);
+        $orderId = $body['order_id'] ?? 0;
+
+        if (!$userId) {
+            $this->error(400, 'User not logged in');
+            return;
+        }
+
+        if (!$orderId) {
+            $this->error(400, 'Invalid order ID');
+            return;
+        }
+
+        $OrderService = new OrderService();
+        $order        = $OrderService->findOrderById($orderId);
+
+        if (!$order) {
+            $this->error(400, 'Invalid order ID');
+            return;
+        }
+
+        if ($order->user_id!= $userId) {
+            $this->error(403, 'Unauthorized to cancel this order');
+            return;
+        }
+
+        if ($order->status == TradeConstants::STATUS_FILLED) {
+            $this->error(400, 'Order already filled');
+            return;
+        }
+
+        $result = $OrderService->cancelOrder($orderId);
+        if ($result) {
+            $this->success([], 'Order cancelled successfully');
+        } else {
+            $this->error(500, 'Failed to cancel order');
+        }
+    }
+
     // 获取用户当前委托列表（带分页）
     public function getCurrentOrderList($f3)
     {
@@ -124,19 +169,19 @@ class OrderController extends BaseController
         $pairId = $f3->get('GET.pair_id');
         // 查询用户当前委托（未完全成交的订单）
         $OrderService = new OrderService();
-        $orders = $OrderService->findCurrentOrders($userId, $pairId);
-        $result = [];
+        $orders       = $OrderService->findCurrentOrders($userId, $pairId);
+        $result       = [];
         foreach ($orders as $order) {
             $result[] = [
-                'order_id' => $order->order_id,
-                'pair_id' => $order->pair_id,
-                'type' => $order->type,
-                'side' => $order->side,
-                'price' => $order->price,
-                'amount' => $order->amount,
+                'order_id'      => $order->order_id,
+                'pair_id'       => $order->pair_id,
+                'type'          => $order->type,
+                'side'          => $order->side,
+                'price'         => format_number($order->price),
+                'amount'        => $order->amount,
                 'filled_amount' => $order->filled_amount,
-                'status' => $order->status,
-                'created_at' => $order->created_at
+                'status'        => $order->status,
+                'created_at'    => $order->created_at
             ];
         }
 
@@ -153,15 +198,17 @@ class OrderController extends BaseController
 
         // 查询用户当前委托（未完全成交的订单）
         $OrderService = new OrderService();
-        $orders = $OrderService->findCurrentOrdersAll($pairId, 10);
-        $asks = [];
-        $bids = [];
+        $orders       = $OrderService->findCurrentOrdersAll($pairId, 10);
+        $asks         = [];
+        $bids         = [];
 
         foreach ($orders as $order) {
-            $price = (string)$order->price;
+            $price  = (string)$order->price;
             $amount = bcsub($order->amount, $order->filled_amount, 8);
 
-            if ($amount <= 0) continue;
+            if ($amount <= 0) {
+                continue;
+            }
 
             if ($order->side == 1) {
                 // 卖出 -> ask
@@ -181,18 +228,18 @@ class OrderController extends BaseController
         $bidArr = [];
 
         foreach ($asks as $price => $amount) {
-            $askArr[] = [(string)$price, (string)$amount];
+            $askArr[] = [format_number($price), format_number($amount)];
         }
         foreach ($bids as $price => $amount) {
-            $bidArr[] = [(string)$price, (string)$amount];
+            $bidArr[] = [format_number($price), format_number($amount)];
         }
 
         // 返回数据结构
         $result = [
             'current' => time() . rand(100, 999),
-            'update' => time() . rand(100, 999),
-            'asks' => $askArr,
-            'bids' => $bidArr
+            'update'  => time() . rand(100, 999),
+            'asks'    => $askArr,
+            'bids'    => $bidArr
         ];
 
         $this->success($result);
@@ -207,20 +254,20 @@ class OrderController extends BaseController
 
         // 查询用户历史委托
         $OrderService = new OrderService();
-        $orders = $OrderService->findHistoryOrders($userId, $pairId);
+        $orders       = $OrderService->findHistoryOrders($userId, $pairId);
 
         $result = [];
         foreach ($orders as $order) {
             $result[] = [
-                'order_id' => $order->order_id,
-                'pair_id' => $order->pair_id,
-                'type' => $order->type,
-                'side' => $order->side,
-                'price' => $order->price,
-                'amount' => $order->amount,
+                'order_id'      => $order->order_id,
+                'pair_id'       => $order->pair_id,
+                'type'          => $order->type,
+                'side'          => $order->side,
+                'price'         => format_number($order->price),
+                'amount'        => $order->amount,
                 'filled_amount' => $order->filled_amount,
-                'status' => $order->status,
-                'created_at' => $order->created_at
+                'status'        => $order->status,
+                'created_at'    => $order->created_at
             ];
         }
 
@@ -239,15 +286,15 @@ class OrderController extends BaseController
 
         // 查询用户成交记录
         $OrderService = new OrderService();
-        $orders = $OrderService->findFilledOrders($userId, $pairId);
-        $result = [];
+        $orders       = $OrderService->findFilledOrders($userId, $pairId);
+        $result       = [];
         foreach ($orders as $order) {
             $result[] = [
                 'order_id'      => $order['order_id'],
                 'pair_id'       => $order['pair_id'],
                 'type'          => $order['type'],
                 'side'          => $order['side'],
-                'price'         => $order['price'],
+                'price'         => format_number($order['price']),
                 'amount'        => $order['amount'],
                 'filled_amount' => $order['filled_amount'],
                 'status'        => TradeConstants::STATUS_FILLED,
@@ -266,15 +313,15 @@ class OrderController extends BaseController
         $pairId = $f3->get('GET.pair_id');
 
         $tradeService = new OrderService();
-        $trades = $tradeService->getRecentTradesByPair($pairId, 5);
+        $trades       = $tradeService->getRecentTradesByPair($pairId, 5);
 
         $result = [];
         foreach ($trades as $trade) {
             $result[] = [
-                'trade_id' => $trade['trade_id'],
-                'price' => $trade['price'],
-                'amount' => $trade['amount'],
-                'fee' => $trade['fee'],
+                'trade_id'   => $trade['trade_id'],
+                'price'      => format_number($trade['price']),
+                'amount'     => format_number($trade['amount']),
+                'fee'        => $trade['fee'],
                 'created_at' => $trade['created_at'],
             ];
         }
