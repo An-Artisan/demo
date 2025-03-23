@@ -21,9 +21,9 @@ class MatchingEngineService {
         try {
             $db->begin();
             // 查询待撮合订单
-            //待撮合买家订单
+            //待撮合买家订单  添加挂单价格排序。
             $buyOrders = $orderModel->find(['pair_id = ? AND side = ? AND status IN (?,?)', $pairId, TradeConstants::SIDE_BUY, TradeConstants::STATUS_PENDING,TradeConstants::STATUS_PARTIAL]);
-            //待撮合卖家订单
+            //待撮合卖家订单  按照挂单价格排序。
             $sellOrders = $orderModel->find(['pair_id = ? AND side = ? AND status IN (?,?)', $pairId, TradeConstants::SIDE_SELL, TradeConstants::STATUS_PENDING,TradeConstants::STATUS_PARTIAL]);
 
             foreach ($buyOrders as $buyOrder) {

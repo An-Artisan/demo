@@ -14,7 +14,7 @@ class Kernel
     {
         return [
             'TestJob'             => \app\Console\Commands\TestJob::class,
-            'CleanTradingPairJob' => \app\Console\Commands\CleanTradingPairJob::class,
+            'SyncTradingPairJob' => \app\Console\Commands\SyncTradingPairJob::class,
             'MatchingEngineJob'   => \app\Console\Commands\MatchingEngineJob::class,
         ];
     }

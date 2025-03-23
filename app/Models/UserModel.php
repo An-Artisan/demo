@@ -2,6 +2,7 @@
 
 namespace app\Models;
 
+use app\Constants\TradeConstants;
 use app\Exceptions\AppException;
 use Base;
 use DB\SQL\Mapper;
@@ -136,5 +137,65 @@ class UserModel extends \DB\SQL\Mapper {
     {
         $this->load(['user_id = ?', $userId]);
         return $this->dry() ? [] : $this->cast();
+    }
+
+    /**
+     * 余额变更
+     * @param $userId
+     * @param $currency
+     * @param $amount
+     * @throws \Exception
+     * @author liuqiang
+     * @email  liuqiang@smzdm.com
+     * @since  2025年03月23日19:52
+     */
+    public function deductBalance($userId, $currency, $amount)
+    {
+        $this->load(['user_id = ?', $userId]);
+        $balance = json_decode($this->balance, true);
+
+        if (!isset($balance['spot'])) $balance['spot'] = [];
+
+        $found = false;
+        foreach ($balance['spot'] as &$asset) {
+            if (strtolower($asset['currency']) === strtolower($currency)) {
+                if (bccomp($asset['available'], $amount, 8) < 0) {
+                    throw new \Exception("余额不足，无法锁定");
+                }
+                $asset['available'] = bcsub($asset['available'], $amount, 8);
+                $asset['locked'] = bcadd($asset['locked'], $amount, 8);
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            throw new \Exception("用户资产中未找到币种：" . $currency);
+        }
+
+        // 更新折算总额，包含 finance 和 futures
+        $totalUSDT = '0';
+        $rates = [
+            'btc' => TradeConstants::RATE_BTC,
+            'eth' => TradeConstants::RATE_ETH
+        ];
+        foreach ($balance['spot'] as $item) {
+            $cur = strtolower($item['currency']);
+            $available = $item['available'] ?? '0';
+            if ($cur === 'usdt') {
+                $totalUSDT = bcadd($totalUSDT, $available, 8);
+            } elseif (isset($rates[$cur])) {
+                $totalUSDT = bcadd($totalUSDT, bcmul($available, $rates[$cur], 8), 8);
+            }
+        }
+
+        $financeUSDT = $balance['details']['finance']['amount'] ?? '0';
+        $futuresUSDT = $balance['details']['futures']['amount'] ?? '0';
+        $finalTotal = bcadd(bcadd($totalUSDT, $financeUSDT, 8), $futuresUSDT, 8);
+
+        $balance['details']['spot']['amount'] = $totalUSDT;
+        $balance['total']['amount'] = $finalTotal;
+        $this->balance = json_encode($balance, JSON_UNESCAPED_UNICODE);
+        $this->save();
     }
 }

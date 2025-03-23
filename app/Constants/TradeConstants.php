@@ -18,4 +18,13 @@ class TradeConstants {
     const STATUS_PARTIAL = 1; // 部分成交
     const STATUS_FILLED = 2; // 完全成交
     const STATUS_CANCELED = 3; // 已取消
+
+
+    //buffer
+    const MARKET_ORDER_BUFFER_RATE = 0.01;
+
+    // 固定汇率
+    const RATE_BTC = 80000;
+    const RATE_ETH = 2000;
 }
+

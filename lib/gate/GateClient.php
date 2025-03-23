@@ -73,8 +73,8 @@ class GateClient
      * 现货余额
      * @param array $currency
      * @return array
-     * @author liuqiang
-     * @email  liuqiang@smzdm.com
+     * @author artisan
+     * @email  g1090045743@gmail.com
      * @since  2025年03月22日18:44
      */
     public function getSpotBalances(array $currency = []): array
@@ -156,8 +156,8 @@ class GateClient
      * K线
      * @param array $params
      * @return array|bool|float|int|object|string|null
-     * @author liuqiang
-     * @email  liuqiang@smzdm.com
+     * @author artisan
+     * @email  g1090045743@gmail.com
      * @since  2025年03月22日17:59
      */
     public function listCandlesticks(

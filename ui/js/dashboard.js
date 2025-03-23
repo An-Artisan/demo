@@ -92,15 +92,26 @@ function fetchOrderBookWithLocal(base) {
     axios.get(`http://localhost:8888/coins/get-currency-depth-local?pair_id=${base}_USDT`)
         .then(res => {
             if (res.data.code === 200) {
-                const asks = res.data.data.asks.slice(0, 10).reverse(); // 卖盘倒序（卖1在底部）
-                const bids = res.data.data.bids.slice(0, 10);           // 买盘正序（买1在顶部）
+                const asks = res.data.data.asks || [];
+                const bids = res.data.data.bids || [];
+
+                // 判断是否无数据
+                if (asks.length === 0 && bids.length === 0) {
+                    document.getElementById('orderBookTableLocal').innerHTML = `
+                        <tr><th colspan="4" style="text-align:center;color:#999;">暂无数据</th></tr>
+                    `;
+                    return;
+                }
+
+                const asksShow = asks.slice(0, 10).reverse(); // 卖盘倒序
+                const bidsShow = bids.slice(0, 10);           // 买盘正序
 
                 let html = '<tr><th>卖出价</th><th>卖出量</th><th>买入价</th><th>买入量</th></tr>';
 
-                const maxRows = Math.max(asks.length, bids.length, 10); // 至少展示10行
+                const maxRows = Math.max(asksShow.length, bidsShow.length, 10);
                 for (let i = 0; i < maxRows; i++) {
-                    const ask = asks[i] || [];
-                    const bid = bids[i] || [];
+                    const ask = asksShow[i] || [];
+                    const bid = bidsShow[i] || [];
 
                     const askPrice = ask[0] || '<span style="color:#999"></span>';
                     const askAmount = ask[1] || '';
@@ -108,9 +119,9 @@ function fetchOrderBookWithLocal(base) {
                     const bidAmount = bid[1] || '';
 
                     html += `<tr>
-        <td>${askPrice}</td><td>${askAmount}</td>
-        <td>${bidPrice}</td><td>${bidAmount}</td>
-    </tr>`;
+                        <td>${askPrice}</td><td>${askAmount}</td>
+                        <td>${bidPrice}</td><td>${bidAmount}</td>
+                    </tr>`;
                 }
 
                 document.getElementById('orderBookTableLocal').innerHTML = html;
@@ -176,7 +187,7 @@ function fetchCurrentOrders(base) {
                 </tr>`;
             });
         } else {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">暂无当前委托</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">当前暂无数据</td></tr>';
         }
     });
 }
