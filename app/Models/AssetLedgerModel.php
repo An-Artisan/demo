@@ -22,12 +22,13 @@ class AssetLedgerModel extends \DB\SQL\Mapper {
 
     // 创建新流水记录
     public function createLedger($userId, $currency, $amount, $type, $relatedOrderId = null) {
-        $this->user_id = $userId;
-        $this->currency = $currency;
-        $this->amount = $amount;
-        $this->type = $type;
-        $this->related_order_id = $relatedOrderId;
-        $this->save();
-        return $this->ledger_id;
+        $model = new $this;
+        $model->user_id = $userId;
+        $model->currency = $currency;
+        $model->amount = $amount;
+        $model->type = $type;
+        $model->related_order_id = $relatedOrderId;
+        $model->save();
+        return $model->ledger_id;
     }
 }

@@ -157,4 +157,36 @@ class OrderModel extends \DB\SQL\Mapper {
     ";
         return $this->db->exec($sql, [$pairId, $limit]);
     }
+
+
+    /**
+     * 获取活跃的买单：状态为未成交或部分成交，按市价优先，限价价格从高到低
+     */
+    public function getOpenBuyOrders(string $pairId): array {
+        return $this->find(
+            [
+            "pair_id = ? AND side = ? AND status IN (?, ?) ORDER BY type ASC, price DESC, created_at ASC",
+                $pairId,
+                TradeConstants::SIDE_BUY,
+                TradeConstants::STATUS_PENDING,
+                TradeConstants::STATUS_PARTIAL
+            ]
+        );
+    }
+
+    /**
+     * 获取活跃的卖单：状态为未成交或部分成交，按市价优先，限价价格从低到高
+     */
+    public function getOpenSellOrders(string $pairId): array {
+        return $this->find(
+            [
+                "pair_id = ? AND side = ? AND status IN (?, ?) ORDER BY type ASC, price ASC, created_at ASC",
+                $pairId,
+                TradeConstants::SIDE_SELL,
+                TradeConstants::STATUS_PENDING,
+                TradeConstants::STATUS_PARTIAL
+            ]
+        );
+    }
 }
+

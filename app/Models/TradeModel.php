@@ -20,13 +20,14 @@ class TradeModel extends \DB\SQL\Mapper {
 
     // 创建新交易记录
     public function createTrade($takerOrderId, $makerOrderId, $pairId, $price, $amount, $fee) {
-        $this->taker_order_id = $takerOrderId;
-        $this->maker_order_id = $makerOrderId;
-        $this->pair_id = $pairId;
-        $this->price = $price;
-        $this->amount = $amount;
-        $this->fee = $fee;
-        $this->save();
+        $model = new $this;
+        $model->taker_order_id = $takerOrderId;
+        $model->maker_order_id = $makerOrderId;
+        $model->pair_id = $pairId;
+        $model->price = $price;
+        $model->amount = $amount;
+        $model->fee = $fee;
+        $model->save();
         return $this->trade_id;
     }
 }

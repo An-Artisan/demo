@@ -198,4 +198,91 @@ class UserModel extends \DB\SQL\Mapper {
         $this->balance = json_encode($balance, JSON_UNESCAPED_UNICODE);
         $this->save();
     }
+
+
+    /**
+     * 释放锁定余额（撮合完成后调用）
+     * @param string $currency 币种
+     * @param string $amount 解锁数量
+     * @throws \Exception
+     */
+    public function releaseLockedBalance($user_id,string $currency, string $amount) {
+        $this->load(['user_id = ?', $user_id]);
+        $balance = json_decode($this->balance, true);
+        foreach ($balance['spot'] as &$asset) {
+            if (strtolower($asset['currency']) === strtolower($currency)) {
+                if (bccomp($asset['locked'], $amount, 8) < 0) {
+                    throw new \Exception("锁定余额不足");
+                }
+                $asset['locked'] = bcsub($asset['locked'], $amount, 8);
+                break;
+            }
+        }
+
+        $this->updateTotalAndSave($user_id,$balance);
+    }
+
+    /**
+     * 增加可用余额（撮合完成后获得资产）
+     * @param string $currency 币种
+     * @param string $amount 增加数量
+     */
+    public function increaseAvailableBalance($user_id,string $currency, string $amount) {
+        $this->load(['user_id = ?', $user_id]);
+        $balance = json_decode($this->balance, true);
+
+        $found = false;
+        foreach ($balance['spot'] as &$asset) {
+            if (strtolower($asset['currency']) === strtolower($currency)) {
+                $asset['available'] = bcadd($asset['available'], $amount, 8);
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            // 如果该币种不存在，新增一条
+            $balance['spot'][] = [
+                'currency' => strtoupper($currency),
+                'available' => $amount,
+                'locked' => '0.00000000'
+            ];
+        }
+
+        $this->updateTotalAndSave($user_id,$balance);
+    }
+
+    /**
+     * 更新资产总额和明细
+     * @param array $balance
+     */
+    private function updateTotalAndSave($user_id,array &$balance) {
+        $this->load(['user_id = ?', $user_id]);
+        $rates = [
+            'btc' => TradeConstants::RATE_BTC,
+            'eth' => TradeConstants::RATE_ETH
+        ];
+
+        $totalUSDT = '0';
+        foreach ($balance['spot'] as $item) {
+            $cur = strtolower($item['currency']);
+            $available = $item['available'] ?? '0';
+
+            if ($cur === 'usdt') {
+                $totalUSDT = bcadd($totalUSDT, $available, 8);
+            } elseif (isset($rates[$cur])) {
+                $totalUSDT = bcadd($totalUSDT, bcmul($available, $rates[$cur], 8), 8);
+            }
+        }
+
+        $finance = $balance['details']['finance']['amount'] ?? '0';
+        $futures = $balance['details']['futures']['amount'] ?? '0';
+        $final = bcadd(bcadd($totalUSDT, $finance, 8), $futures, 8);
+
+        $balance['details']['spot']['amount'] = $totalUSDT;
+        $balance['total']['amount'] = $final;
+
+        $this->balance = json_encode($balance, JSON_UNESCAPED_UNICODE);
+        $this->save();
+    }
 }
