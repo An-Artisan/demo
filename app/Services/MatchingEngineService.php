@@ -1,4 +1,5 @@
 <?php
+
 namespace app\Services;
 
 use App\Constants\TradeConstants;
@@ -19,7 +20,21 @@ use App\Models\UserModel;
  * @email  g1090045743@gmail.com
  * @since  2025年03月23日23:52
  */
-class MatchingEngineService {
+class MatchingEngineService
+{
+
+    protected $orderModel;
+    protected $tradeModel;
+    protected $userModel;
+    protected $tradingPairModel;
+
+    public function __construct()
+    {
+        $this->orderModel = new OrderModel();
+        $this->tradeModel = new TradeModel();
+        $this->userModel = new UserModel();
+        $this->tradingPairModel = new TradingPairModel();
+    }
 
     /**
      * 撮合所有活跃交易对（仅处理 BTC_USDT 和 ETH_USDT）
@@ -32,7 +47,8 @@ class MatchingEngineService {
      * @email  g1090045743@gmail.com
      * @since  2025年03月23日23:52
      */
-    public function matchAllPairs() {
+    public function matchAllPairs()
+    {
         // 固定交易对列表：BTC_USDT 和 ETH_USDT
         $pairList = ['BTC_USDT', 'ETH_USDT'];
 
@@ -56,107 +72,72 @@ class MatchingEngineService {
      * @email  g1090045743@gmail.com
      * @since  2025年03月24日00:32
      */
-    public function matchOrders($pairId) {
+    public function matchOrders(string $pairId)
+    {
         $db = db();
-        $orderModel = new OrderModel();
-        $tradeModel = new TradeModel();
 
         try {
-            // 开启数据库事务
+            // 开启数据库事务（确保每个交易对撮合的事务尽量短，以免长事务影响 MySQL 性能）
             $db->begin();
 
-            // 查询当前交易对的所有买单，按照市价优先，价格高优先排序
-            $buyOrders = $orderModel->getOpenBuyOrders($pairId);
-            // 查询当前交易对的所有卖单，按照市价优先，价格低优先排序
-            $sellOrders = $orderModel->getOpenSellOrders($pairId);
-            if (count($buyOrders) > 0 || count($sellOrders) > 0)  {
+            $buyOrders = $this->orderModel->getOpenBuyOrders($pairId);
+            $sellOrders = $this->orderModel->getOpenSellOrders($pairId);
+            if (count($buyOrders) > 0 || count($sellOrders) > 0) {
                 logger()->write("开始撮合交易对：$pairId", 'info');
             }
-            // 遍历所有买单
+
             foreach ($buyOrders as $buyOrder) {
-                // 对每个买单遍历所有卖单
                 foreach ($sellOrders as $sellOrder) {
-                    // 排除同一用户的订单（防止自己与自己撮合）
+                    // 排除同一用户的订单
                     if ($buyOrder->user_id == $sellOrder->user_id) {
                         continue;
                     }
-                    // 如果两个订单都是市价单，则不撮合
+                    // 跳过双方均为市价单的情况
                     if ($buyOrder->type == TradeConstants::TYPE_MARKET && $sellOrder->type == TradeConstants::TYPE_MARKET) {
                         continue;
                     }
-                    // 如果两个订单都是限价单，则只有当买单价格大于等于卖单价格时才撮合
+                    // 限价 vs 限价时，只有当买价>=卖价才允许撮合
                     if ($buyOrder->type == TradeConstants::TYPE_LIMIT && $sellOrder->type == TradeConstants::TYPE_LIMIT) {
                         if (bccomp($buyOrder->price, $sellOrder->price, 8) < 0) {
                             continue;
                         }
                     }
 
-                    // 计算买单和卖单剩余数量
-                    $buyRemain = bcsub($buyOrder->amount, $buyOrder->filled_amount, 8);
-                    $sellRemain = bcsub($sellOrder->amount, $sellOrder->filled_amount, 8);
+                    // 获取剩余可成交数量
+                    $buyRemain = $this->getRemain($buyOrder);
+                    $sellRemain = $this->getRemain($sellOrder);
                     if (bccomp($buyRemain, '0', 8) == 0 || bccomp($sellRemain, '0', 8) == 0) {
                         continue;
                     }
 
-                    // 确定成交价格，默认采用卖单价格
+                    // 默认采用卖单价格
                     $tradePrice = $sellOrder->price;
+                    // 当买单为限价单且卖单为市价单时，成交价取买单价格
                     if ($buyOrder->type == TradeConstants::TYPE_LIMIT && $sellOrder->type == TradeConstants::TYPE_MARKET) {
                         $tradePrice = $buyOrder->price;
                     }
-                    // 成交数量为两订单剩余数量中的较小值
-                    $tradeAmount = bccomp($buyRemain, $sellRemain, 8) <= 0 ? $buyRemain : $sellRemain;
+                    $tradeAmount = (bccomp($buyRemain, $sellRemain, 8) <= 0) ? $buyRemain : $sellRemain;
                     if (bccomp($tradeAmount, '0', 8) == 0) {
                         continue;
                     }
 
-                    // 保存撮合前的已成交数量，便于记录本次撮合信息
+                    // 保存撮合前的成交数据，便于记录日志
                     $prevBuyFilled = $buyOrder->filled_amount;
                     $prevSellFilled = $sellOrder->filled_amount;
 
-                    // 更新订单成交数量
-                    $buyOrder->filled_amount = bcadd($buyOrder->filled_amount, $tradeAmount, 8);
-                    $sellOrder->filled_amount = bcadd($sellOrder->filled_amount, $tradeAmount, 8);
+                    // 更新买单和卖单
+                    $this->updateOrderFilled($buyOrder, $tradeAmount);
+                    $this->updateOrderFilled($sellOrder, $tradeAmount);
 
-                    // 更新订单状态
-                    $buyOrder->status = bccomp($buyOrder->filled_amount, $buyOrder->amount, 8) >= 0
-                        ? TradeConstants::STATUS_FILLED
-                        : TradeConstants::STATUS_PARTIAL;
-                    $sellOrder->status = bccomp($sellOrder->filled_amount, $sellOrder->amount, 8) >= 0
-                        ? TradeConstants::STATUS_FILLED
-                        : TradeConstants::STATUS_PARTIAL;
+                    $newBuyRemain = $this->getRemain($buyOrder);
+                    $newSellRemain = $this->getRemain($sellOrder);
 
-                    // 保存订单更新
-                    $buyOrder->save();
-                    $sellOrder->save();
+                    // 输出订单详细日志
+                    $this->logOrderDetails($buyOrder, $prevBuyFilled, $tradeAmount, $newBuyRemain, "买单");
+                    $this->logOrderDetails($sellOrder, $prevSellFilled, $tradeAmount, $newSellRemain, "卖单");
 
-                    // 计算本次撮合后的剩余数量
-                    $newBuyRemain = bcsub($buyOrder->amount, $buyOrder->filled_amount, 8);
-                    $newSellRemain = bcsub($sellOrder->amount, $sellOrder->filled_amount, 8);
-
-                    // 输出买单详细信息日志（本次撮合前后的数据）
-                    $buyMsg = "买单 #订单号{$buyOrder->order_id} (买家用户：{$buyOrder->user_id}) 下单数量：{$buyOrder->amount}，"
-                        . "原已成交：{$prevBuyFilled}，本次撮合：{$tradeAmount}，现已成交：{$buyOrder->filled_amount}，剩余：{$newBuyRemain}。";
-                    $buyMsg .= ($buyOrder->status == TradeConstants::STATUS_FILLED) ? " 订单已完全成交" : " 订单部分成交";
-                    logger()->write($buyMsg, 'info');
-
-                    // 如果买单分批匹配后已完全成交，则输出额外日志
-                    if (bccomp($newBuyRemain, '0', 8) == 0 && $buyOrder->status == TradeConstants::STATUS_FILLED && bccomp($prevBuyFilled, $buyOrder->amount, 8) < 0) {
-                        logger()->write("买单 #订单号{$buyOrder->order_id} (买家用户：{$buyOrder->user_id}) 分批撮合完成，当前订单状态已改为完全成交。", 'info');
-                    }
-
-                    // 输出卖单详细信息日志
-                    $sellMsg = "卖单 #订单号{$sellOrder->order_id} (卖家用户：{$sellOrder->user_id}) 下单数量：{$sellOrder->amount}，"
-                        . "原已成交：{$prevSellFilled}，本次撮合：{$tradeAmount}，现已成交：{$sellOrder->filled_amount}，剩余：{$newSellRemain}。";
-                    $sellMsg .= ($sellOrder->status == TradeConstants::STATUS_FILLED) ? " 订单已完全成交" : " 订单部分成交";
-                    logger()->write($sellMsg, 'info');
-
-                    // 如果卖单分批匹配后已完全成交，则输出额外日志
-                    if (bccomp($newSellRemain, '0', 8) == 0 && $sellOrder->status == TradeConstants::STATUS_FILLED && bccomp($prevSellFilled, $sellOrder->amount, 8) < 0) {
-                        logger()->write("卖单 #订单号{$sellOrder->order_id} (卖家用户：{$sellOrder->user_id}) 分批撮合完成，当前订单状态已改为完全成交。", 'info');
-                    }
-
-                    // 创建撮合成交记录
-                    $tradeModel->createTrade(
+                    // 生成撮合成交记录
+                    $this->tradeModel->createTrade(
                         $buyOrder->order_id,
                         $sellOrder->order_id,
                         $pairId,
@@ -165,12 +146,12 @@ class MatchingEngineService {
                         0
                     );
 
-                    // 输出撮合成交详细日志
+                    // 输出撮合成交日志
                     $tradeLog = "撮合成交：买单 #订单号{$buyOrder->order_id} (买家：{$buyOrder->user_id}, 下单数量：{$buyOrder->amount}, 本次撮合：{$tradeAmount}) "
                         . "与卖单 #订单号{$sellOrder->order_id} (卖家：{$sellOrder->user_id}, 下单数量：{$sellOrder->amount}, 本次撮合：{$tradeAmount}) 成交，成交价：{$tradePrice}。";
                     logger()->write($tradeLog, 'info');
 
-                    // 更新成交后的用户资产
+                    // 更新用户资产
                     $this->updateUserAssets(
                         $buyOrder->user_id,
                         $sellOrder->user_id,
@@ -181,21 +162,75 @@ class MatchingEngineService {
                         $sellOrder->order_id
                     );
 
-                    // 如果买单已完全成交，则退出内层循环，继续处理下一个买单
-                    $buyRemain = bcsub($buyOrder->amount, $buyOrder->filled_amount, 8);
+                    // 如果买单已完全成交，则退出内层循环
+                    $buyRemain = $this->getRemain($buyOrder);
                     if (bccomp($buyRemain, '0', 8) == 0) {
                         break;
                     }
                 }
             }
-
-            // 提交事务
             $db->commit();
         } catch (\Exception $e) {
-            // 出现异常时回滚事务
             $db->rollback();
             logger()->write("撮合失败：" . $e->getMessage(), 'error');
             throw $e;
+        }
+    }
+
+    /**
+     * 计算订单剩余未成交数量
+     *
+     * @param  $order
+     * @return string 剩余数量，精度8位小数
+     * @author artisan
+     * @email  g1090045743@gmail.com
+     * @since  2025年03月23日23:52
+     */
+    private function getRemain($order): string
+    {
+        return bcsub($order->amount, $order->filled_amount, 8);
+    }
+
+    /**
+     * 更新订单的成交数量与状态，并保存
+     *
+     * @param  $order
+     * @param string $tradeAmount 本次撮合成交数量
+     * @author artisan
+     * @email  g1090045743@gmail.com
+     * @since  2025年03月23日23:52
+     */
+    private function updateOrderFilled($order, string $tradeAmount)
+    {
+        $order->filled_amount = bcadd($order->filled_amount, $tradeAmount, 8);
+        $order->status = (bccomp($order->filled_amount, $order->amount, 8) >= 0)
+            ? TradeConstants::STATUS_FILLED
+            : TradeConstants::STATUS_PARTIAL;
+        $order->save();
+    }
+
+    /**
+     * 输出订单撮合前后详细日志，并在订单分批撮合完成时输出额外提示
+     *
+     * @param  $order
+     * @param string $prevFilled 撮合前已成交数量
+     * @param string $tradeAmount 本次撮合数量
+     * @param string $newRemain 撮合后剩余数量
+     * @param string $orderTypeDesc 订单类型描述（例如“买单”或“卖单”）
+     * @author artisan
+     * @email  g1090045743@gmail.com
+     * @since  2025年03月23日23:52
+     */
+    private function logOrderDetails($order, string $prevFilled, string $tradeAmount, string $newRemain, string $orderTypeDesc)
+    {
+        $msg = "{$orderTypeDesc} #订单号{$order->order_id} (用户：{$order->user_id}) 下单数量：{$order->amount}，"
+            . "原已成交：{$prevFilled}，本次撮合：{$tradeAmount}，现已成交：{$order->filled_amount}，剩余：{$newRemain}。";
+        $msg .= ($order->status == TradeConstants::STATUS_FILLED) ? " 订单已完全成交" : " 订单部分成交";
+        logger()->write($msg, 'info');
+
+        // 如果订单分批撮合后已完全成交，则输出额外日志
+        if (bccomp($newRemain, '0', 8) == 0 && $order->status == TradeConstants::STATUS_FILLED && bccomp($prevFilled, $order->amount, 8) < 0) {
+            logger()->write("{$orderTypeDesc} #订单号{$order->order_id} (用户：{$order->user_id}) 分批撮合完成，当前订单状态已改为完全成交。", 'info');
         }
     }
 
@@ -206,22 +241,24 @@ class MatchingEngineService {
      * 包括释放锁定的资金、增加对应资产的可用余额，
      * 并写入资产流水记录。
      *
-     * @param int    $buyerId    买家用户ID
-     * @param int    $sellerId   卖家用户ID
-     * @param string $pairId     交易对ID
-     * @param string $amount     成交数量
-     * @param string $price      成交价格
-     * @param int    $buyOrderId 买单订单ID
-     * @param int    $sellOrderId 卖单订单ID
+     * @param int $buyerId 买家用户ID
+     * @param int $sellerId 卖家用户ID
+     * @param string $pairId 交易对ID
+     * @param string $amount 成交数量
+     * @param string $price 成交价格
+     * @param int $buyOrderId 买单订单ID
+     * @param int $sellOrderId 卖单订单ID
      * @throws \Exception
      * @author artisan
      * @email  g1090045743@gmail.com
      * @since  2025年03月23日23:52
      */
-    private function updateUserAssets(int $buyerId, int $sellerId, string $pairId, string $amount, string $price, int $buyOrderId, int $sellOrderId) {
+    private function updateUserAssets(int $buyerId, int $sellerId, string $pairId, string $amount, string $price, int $buyOrderId, int $sellOrderId)
+    {
         $assetLedgerModel = new AssetLedgerModel();
         $tradingPairModel = new TradingPairModel();
         $userModel = new UserModel();
+
         // 获取交易对信息（基础币和计价币）
         $pair = $tradingPairModel->findById($pairId);
         $base = $pair['base'];
