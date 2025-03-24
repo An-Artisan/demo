@@ -47,7 +47,6 @@ class SyncRemainingJob
                     WHERE taker_order_id = ? OR maker_order_id = ?";
                 $result = db()->exec($sql, [$order->order_id, $order->order_id]);
                 $usedFunds = $result[0]['usedFunds'];
-
                 // 计算剩余未使用的锁定金额 = lock_amount - usedFunds
                 $remaining = bcsub($order->lock_amount, $usedFunds, 8);
                 // 如果剩余大于0，则释放剩余锁定金额
@@ -72,6 +71,8 @@ class SyncRemainingJob
                             4,          // 流水类型4：释放锁定余额
                             $order->order_id
                         );
+                        $order->lock_amount = 0;
+                        $order->update();
 
                         logger()->write("订单 #{$order->order_id} 市场买单完全成交，已释放剩余锁定金额：{$remaining} {$quote}", 'info');
                     } catch (\Exception $e) {
