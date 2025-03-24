@@ -135,7 +135,7 @@ class UserService
                 }
                 $marketBuyCost['currency'] = $quote;
             } else {
-                if (bccomp($amount, $marketBuyCost['locked_balance'], 8) < 0) {
+                if (bccomp($quoteBalance, $amount, 8) < 0) {
                     return ['success' => false, 'message' => 'Insufficient balance for market sell'];
                 }
                 $marketBuyCost['locked_balance'] = $amount;
