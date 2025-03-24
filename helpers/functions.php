@@ -1,6 +1,7 @@
 <?php
-if(!function_exists('format_number')) {
+if (!function_exists('format_number')) {
     function format_number($number) {
-        return rtrim(rtrim((string)$number,'0'),'.');
+        $formatted = rtrim(rtrim((string)$number, '0'), '.');
+        return $formatted === '' ? '0' : $formatted;
     }
 }

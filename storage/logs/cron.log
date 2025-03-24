@@ -103,3 +103,5 @@
 ]
 运行 TestJob::run 成功  
 "SQLSTATE[HY000] [2002] No such file or directory"
+"SQLSTATE[HY000] [1045] Access denied for user 'ai'@'192.168.65.1' (using password: YES)"
+"SQLSTATE[HY000] [1045] Access denied for user 'ai'@'192.168.65.1' (using password: YES)"

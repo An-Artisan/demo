@@ -23,9 +23,13 @@ class UserController
     {
         $currency = $f3->get('GET.currency');
         $client = new GateClient();
-        $data         = $client->getBalance();
+        $data = $client->getBalance();
         $spotData = $client->getSpotBalances(['currency' => $currency]);
         $data['spot'] = $spotData;
+
+        // 递归格式化所有数字字段
+        $data = $this->recursiveFormat($data);
+
         $this->success($data);
     }
 
@@ -33,7 +37,7 @@ class UserController
     {
         $currency = $f3->get('GET.currency');
 
-        // 获取当前用户 ID
+        // 获取当前用户ID
         $userId = get_current_uid();
         // 调用 Service 获取 balance 数据
         $UserBalanceService = new \app\Services\UserService();
@@ -48,11 +52,37 @@ class UserController
                 return $item['currency'] === $currency;
             }));
         }
+
+        // 递归格式化所有数字字段
+        $balance = $this->recursiveFormat($balance);
+
         // 返回结果
         $this->success($balance);
     }
 
 
+    /**
+     * 递归格式化数组中的数字字段
+     *
+     * @param mixed $data 数据，可以是数组或单个值
+     * @return mixed 格式化后的数据
+     * @author artisan
+     * @email  g1090045743@gmail.com
+     * @since  2025年03月23日23:52
+     */
+    private function recursiveFormat($data)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data[$key] = $this->recursiveFormat($value);
+            }
+            return $data;
+        } elseif (is_numeric($data)) {
+            return format_number($data);
+        } else {
+            return $data;
+        }
+    }
 
 
     public function index($f3)
