@@ -130,7 +130,6 @@ class UserService
                 if (!$marketBuyCost['success']) {
                     return ['success' => false, 'message' => $marketBuyCost['message'] ?? 'Error calculating cost'];
                 }
-
                 if (bccomp($quoteBalance, $marketBuyCost['locked_balance'], 8) < 0) {
                     return ['success' => false, 'message' => 'Insufficient balance for market buy'];
                 }

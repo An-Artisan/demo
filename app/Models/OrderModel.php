@@ -32,6 +32,7 @@ class OrderModel extends \DB\SQL\Mapper {
         $this->side = $order['side'];
         $this->price = $order['price'];
         $this->amount = $order['amount'];
+        $this->lock_amount = $order['lock_amount'];
         $this->status = TradeConstants::STATUS_PENDING;
         $this->filled_amount = 0;
         $this->created_at = date('Y-m-d H:i:s');
