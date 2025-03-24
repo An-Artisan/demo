@@ -355,7 +355,7 @@ function fetchAssetData(pairId) {
             tbody.innerHTML += `<tr><td>${quote} 锁定余额</td><td>${locked}</td><td>${quote}</td></tr>`;
 
             // ✅ 设置总资产
-            document.getElementById('totalAsset').innerText = `总资产：${totalAmount.toFixed(4)} ${currencySymbol}`;
+            // document.getElementById('totalAsset').innerText = `总资产：${totalAmount.toFixed(4)} ${currencySymbol}`;
         }
     });
 
