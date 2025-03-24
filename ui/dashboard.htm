@@ -99,6 +99,7 @@
         <button onclick="loadTab('current')">当前委托</button>
         <button onclick="loadTab('history')">委托历史</button>
         <button onclick="loadTab('trades')">成交记录</button>
+        <button onclick="loadTab('asset')">资产变更</button>
     </div>
 
     <!-- 当前委托表格 -->
@@ -114,6 +115,18 @@
                 <th>数量</th>
                 <th>已成交</th>
                 <th>状态</th>
+                <th>时间</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <table id="UserAssetTable" style="display: none">
+            <thead>
+            <tr>
+                <th>币种</th>
+                <th>数量</th>
+                <th>变更类型</th>
                 <th>时间</th>
             </tr>
             </thead>

@@ -105,4 +105,20 @@ class UserController
             $this->error(400, '用户不存在');
         }
     }
+
+    public function getAssetList($f3, $params)
+    {
+        $userId = get_current_uid();
+        $dataObj = $this->userService->getAssetList($userId);
+        $data = [];
+        foreach ($dataObj as $item) {
+            $data[] = [
+                'currency' => $item->currency,
+                'amount' => $item->amount,
+                'type' => $item->type,
+                'created_at' => $item->created_at,
+            ];
+        }
+        $this->success($data);
+    }
 }

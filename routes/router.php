@@ -43,6 +43,12 @@ $f3->route('GET /users/get-balance-local', function($f3, $params) {
     Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\User\UserController->getBalanceLocal', [$f3, $params]);
 }); // 本地资产
 
+
+$f3->route('GET /users/get-asset-list', function($f3, $params) {
+    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\User\UserController->getAssetList', [$f3, $params]);
+}); // 本地资产
+
+
 //  登录相关（无需中间件）
 $f3->route('POST /api/login', 'app\Http\Controllers\Auth\LoginController->login'); // 登录API
 

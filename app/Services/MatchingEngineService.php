@@ -82,9 +82,6 @@ class MatchingEngineService
 
             $buyOrders = $this->orderModel->getOpenBuyOrders($pairId);
             $sellOrders = $this->orderModel->getOpenSellOrders($pairId);
-            if (count($buyOrders) > 0 || count($sellOrders) > 0) {
-                logger()->write("开始撮合交易对：$pairId", 'info');
-            }
 
             foreach ($buyOrders as $buyOrder) {
                 foreach ($sellOrders as $sellOrder) {
