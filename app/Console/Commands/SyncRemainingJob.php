@@ -63,6 +63,7 @@ class SyncRemainingJob
                     try {
                         // 释放剩余锁定余额
                         $userModel->releaseLockedBalance($order->user_id, $quote, $remaining);
+                        $userModel->increaseAvailableBalance($order->user_id, $quote, $remaining);
 
                         // 记录资产流水，流水类型为4 表示释放锁定
                         $assetLedgerModel->createLedger(
