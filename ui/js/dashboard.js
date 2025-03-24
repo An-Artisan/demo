@@ -296,7 +296,8 @@ function fetchAssetRecords(base) {
                     0: '充值',
                     1: '提现',
                     2: '交易',
-                    3: '冻结'
+                    3: '冻结',
+                    4: '解冻'
                 };
                 const statusText = statusMap[asset.type] || '未知';
 

@@ -3,6 +3,7 @@
 namespace app\Http\Controllers\Order;
 
 use app\Http\Controllers\BaseController;
+use app\Models\AssetLedgerModel;
 use app\Models\OrderModel;
 use app\Models\TradingPairModel;
 use app\Models\UserModel;
@@ -117,8 +118,44 @@ class OrderController extends BaseController
             return;
         }
 
+        // 取消订单
         $result = $OrderService->cancelOrder($orderId);
         if ($result) {
+            // 计算订单剩余未成交数量
+            $remaining = bcsub($order->amount, $order->filled_amount, 8);
+
+            // 解析交易对，例如 "BTC_USDT"
+            $pairParts = explode('_', $order->pair_id);
+            if (count($pairParts) != 2) {
+                $this->error(400, 'Invalid pair format');
+                return;
+            }
+
+            // 判断订单类型，计算释放的锁定余额
+            if ($order->side == TradeConstants::SIDE_BUY) {
+                // 买单锁定的是计价币（第二部分），释放金额 = 剩余数量 * 限价单价格
+                $currencyToRelease = $pairParts[1];
+                $releaseAmount = bcmul($remaining, $order->price, 8);
+            } else {
+                // 卖单锁定的是基础币（第一部分）
+                $currencyToRelease = $pairParts[0];
+                $releaseAmount = $remaining;
+            }
+
+            // 调用用户模型方法释放锁定余额
+            $UserModel = new UserModel();
+            $assetLedgerModel = new AssetLedgerModel();
+            try {
+                $UserModel->releaseLockedBalance($userId, $currencyToRelease, $releaseAmount);
+                // 此处流水类型使用4表示解冻（或资产调整），关联订单为撤单订单ID
+                $assetLedgerModel->createLedger($userId, $currencyToRelease, $releaseAmount, 2, $orderId);
+            } catch (\Exception $e) {
+                // 如果释放锁定余额失败，则记录日志并返回错误
+                logger()->write("释放锁定余额失败：" . $e->getMessage(), 'error');
+                $this->error(500, 'Failed to release locked balance');
+                return;
+            }
+
             $this->success([], 'Order cancelled successfully');
         } else {
             $this->error(500, 'Failed to cancel order');
