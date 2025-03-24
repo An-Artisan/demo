@@ -157,6 +157,7 @@ class OrderController extends BaseController
             $assetLedgerModel = new AssetLedgerModel();
             try {
                 $UserModel->releaseLockedBalance($userId, $currencyToRelease, $releaseAmount);
+                $UserModel->increaseAvailableBalance($userId, $currencyToRelease, $releaseAmount);
                 // 此处流水类型使用4表示解冻（或资产调整），关联订单为撤单订单ID
                 $assetLedgerModel->createLedger($userId, $currencyToRelease, $releaseAmount, 2, $orderId);
             } catch (\Exception $e) {

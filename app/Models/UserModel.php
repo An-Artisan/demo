@@ -217,7 +217,6 @@ class UserModel extends \DB\SQL\Mapper {
                 break;
             }
         }
-
         $this->updateTotalAndSave($user_id,$balance);
     }
 
