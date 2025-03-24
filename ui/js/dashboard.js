@@ -234,7 +234,7 @@ function fetchHistoryOrders(base) {
                 </tr>`;
             });
         } else {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">暂无当前委托</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">暂无数据</td></tr>';
         }
     });
 }
