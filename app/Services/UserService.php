@@ -4,6 +4,7 @@ namespace app\Services;
 
 use app\Constants\TradeConstants;
 use app\Exceptions\AppException;
+use app\Models\AssetLedgerModel;
 use app\Models\UserModel;
 use PDOException;
 use function GuzzleHttp\Psr7\str;
@@ -11,10 +12,12 @@ use function GuzzleHttp\Psr7\str;
 class UserService
 {
     protected $userModel;
+    protected $assetModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
+        $this->assetModel = new AssetLedgerModel();
     }
 
     /**
@@ -152,4 +155,8 @@ class UserService
         return ['success' => true, 'marketBuyCost' => $marketBuyCost];
     }
 
+    public function getAssetList(int $userId): array
+    {
+        return $this->assetModel->findByPairIdAndUserId($userId);
+    }
 }

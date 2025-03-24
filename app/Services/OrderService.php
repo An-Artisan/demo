@@ -167,6 +167,7 @@ class OrderService
 
         return $asks;
     }
+
     public static function getBids(string $pairId, int $limit = 10): array
     {
         $db = db();
@@ -201,8 +202,6 @@ class OrderService
      * @param string $pairId
      * @param string $amount 计划买入的 BTC 数量
      * @param string $bufferRate 默认 1.01（1% buffer）
-     * @author liuqiang
-     * @email g1090035743@gmail.com
      * @return array [
      *     'success' => true,
      *     'cost' => string,
@@ -210,6 +209,8 @@ class OrderService
      *     'used_asks' => array,
      *     'locked_balance' => string
      * ]
+     * @author liuqiang
+     * @email g1090035743@gmail.com
      */
     public static function calculateMarketBuyCost(string $pairId, string $amount, string $bufferRate = '1.01'): array
     {

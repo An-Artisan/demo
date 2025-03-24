@@ -20,6 +20,11 @@ class AssetLedgerModel extends \DB\SQL\Mapper {
         return $this->find(['user_id = ?', $userId]);
     }
 
+    // 根据交易对ID查找交易记录
+    public function findByPairIdAndUserId($userId) {
+        return $this->find(['user_id = ?',$userId]);
+    }
+
     // 创建新流水记录
     public function createLedger($userId, $currency, $amount, $type, $relatedOrderId = null) {
         $model = new $this;

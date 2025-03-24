@@ -39,6 +39,7 @@ function fetchMarketInfo(base) {
         }
     });
 }
+
 function togglePriceField() {
     const orderType = document.getElementById('orderType').value;
     const priceInput = document.getElementById('priceInput');
@@ -49,6 +50,7 @@ function togglePriceField() {
         priceInput.style.display = 'block';
     }
 }
+
 function fetchKlineData(base) {
     axios.get(`http://localhost:8888/coins/get-currency-kline?currency_pair=${base}_USDT&interval=1h&limit=1000`).then(res => {
         if (res.data.code === 200) {
@@ -157,7 +159,10 @@ function fetchCurrentOrders(base) {
     axios.get(`http://localhost:8888/order/get-current-order-list?pair_id=${base}`).then(res => {
         const tbody = document.querySelector('#currentOrdersTable tbody');
         tbody.innerHTML = '';
-
+        const body = document.querySelector('#UserAssetTable');
+        const tbodyTable = document.querySelector('#currentOrdersTable');
+        body.style = 'display: none';
+        tbodyTable.style = 'display: block';
         const orderList = res.data.data; // 数据结构是数组了
 
         if (res.data.code === 200 && Array.isArray(orderList) && orderList.length > 0) {
@@ -191,11 +196,15 @@ function fetchCurrentOrders(base) {
         }
     });
 }
+
 function fetchHistoryOrders(base) {
     axios.get(`http://localhost:8888/order/get-history-order-list?pair_id=${base}`).then(res => {
         const tbody = document.querySelector('#currentOrdersTable tbody');
         tbody.innerHTML = '';
-
+        const body = document.querySelector('#UserAssetTable');
+        const tbodyTable = document.querySelector('#currentOrdersTable');
+        body.style = 'display: none';
+        tbodyTable.style = 'display: block';
         const orderList = res.data.data; // 数据结构是数组了
 
         if (res.data.code === 200 && Array.isArray(orderList) && orderList.length > 0) {
@@ -229,10 +238,16 @@ function fetchHistoryOrders(base) {
         }
     });
 }
+
 function fetchTradeRecords(base) {
     axios.get(`http://localhost:8888/order/get-filled-order-list?pair_id=${base}`).then(res => {
         const tbody = document.querySelector('#currentOrdersTable tbody');
         tbody.innerHTML = '';
+
+        const body = document.querySelector('#UserAssetTable');
+        const tbodyTable = document.querySelector('#currentOrdersTable');
+        body.style = 'display: none';
+        tbodyTable.style = 'display: block';
 
         const orderList = res.data.data; // 数据结构是数组了
 
@@ -266,6 +281,41 @@ function fetchTradeRecords(base) {
         }
     });
 }
+function fetchAssetRecords(base) {
+    axios.get(`http://localhost:8888/users/get-asset-list`).then(res => {
+        const tbody = document.querySelector('#UserAssetTable tbody');
+        const body = document.querySelector('#UserAssetTable');
+        const otherBody = document.querySelector('#currentOrdersTable');
+        tbody.innerHTML = '';
+        body.style = 'display: block';
+        otherBody.style = 'display: none';
+        const assetList = res.data.data; // 数据结构是数组了
+        if (res.data.code === 200 && Array.isArray(assetList) && assetList.length > 0) {
+            assetList.forEach(asset => {
+                const statusMap = {
+                    0: '充值',
+                    1: '提现',
+                    2: '交易',
+                    3: '冻结'
+                };
+                const statusText = statusMap[asset.type] || '未知';
+
+                tbody.innerHTML += `
+                <tr>
+                    <td>${asset.currency}</td>
+                    <td>${asset.amount}</td>
+                    <td>${statusText}</td>
+                    <td>${asset.created_at}</td>
+                </tr>`;
+            });
+            tbody.style = "display:block";
+        } else {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">暂无资产变更</td></tr>';
+            tbody.style = "display:block";
+        }
+    });
+}
+
 function fetchAssetData(pairId) {
     const [base, quote] = pairId.split('_'); // 拆成 BTC 和 USDT
     const tbody = document.querySelector('#assetTable tbody');
@@ -384,11 +434,6 @@ function fetchAssetDataLocal(pairId) {
         document.getElementById('totalAssetLocal').innerText = '资产加载失败 ❌';
     });
 }
-
-
-
-
-
 
 
 function updatePage(coinKey) {
@@ -533,6 +578,8 @@ function loadTab(tabName) {
         fetchHistoryOrders(`${currentCoin}_USDT`);
     } else if (tabName === 'trades') {
         fetchTradeRecords(`${currentCoin}_USDT`)
+    } else if (tabName === 'asset') {
+        fetchAssetRecords(currentCoin)
     }
 }
 
