@@ -2,6 +2,10 @@
 
 namespace app\Console;
 
+use app\Console\Commands\MatchingEngineJob;
+use app\Console\Commands\SyncRemainingJob;
+use app\Console\Commands\SyncTradingPairJob;
+use app\Console\Commands\TestJob;
 use lib\schedule\ScheduledTask;
 
 
@@ -13,9 +17,10 @@ class Kernel
     public function commands(): array
     {
         return [
-            'TestJob'             => \app\Console\Commands\TestJob::class,
-            'SyncTradingPairJob' => \app\Console\Commands\SyncTradingPairJob::class,
-            'MatchingEngineJob'   => \app\Console\Commands\MatchingEngineJob::class,
+            'TestJob' => TestJob::class,
+            'SyncTradingPairJob' => SyncTradingPairJob::class,
+            'MatchingEngineJob' => MatchingEngineJob::class,
+            'SyncRemainingJob' => SyncRemainingJob::class,
         ];
     }
 
