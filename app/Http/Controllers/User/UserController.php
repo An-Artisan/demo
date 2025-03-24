@@ -42,7 +42,6 @@ class UserController
         // 调用 Service 获取 balance 数据
         $UserBalanceService = new \app\Services\UserService();
         $balanceData = $UserBalanceService->getUserBalance($userId);
-
         // 解析 balance 字段（JSON）
         $balance = json_decode($balanceData['balance'], true);
 
@@ -55,7 +54,6 @@ class UserController
 
         // 递归格式化所有数字字段
         $balance = $this->recursiveFormat($balance);
-
         // 返回结果
         $this->success($balance);
     }
