@@ -44,7 +44,6 @@ class UserController
         $balanceData = $UserBalanceService->getUserBalance($userId);
         // 解析 balance 字段（JSON）
         $balance = json_decode($balanceData['balance'], true);
-
         // 过滤 spot 币种（如果传入 currency）
         if ($currency && isset($balance['spot']) && is_array($balance['spot'])) {
             $balance['spot'] = array_values(array_filter($balance['spot'], function ($item) use ($currency) {
