@@ -126,10 +126,11 @@ class UserService
              * 这里如果无深度就拒绝下单，但是深度不够也可以下单，可以拆单。
              */
             if ($side == TradeConstants::SIDE_BUY) {
-                $marketBuyCost = OrderService::calculateMarketBuyCost($amount, TradeConstants::MARKET_ORDER_BUFFER_RATE);
+                $marketBuyCost = OrderService::calculateMarketBuyCost($amount, TradeConstants::RATE_LIST[$base],TradeConstants::MARKET_ORDER_BUFFER_RATE);
                 if (!$marketBuyCost['success']) {
                     return ['success' => false, 'message' => $marketBuyCost['message'] ?? 'Error calculating cost'];
                 }
+
                 if (bccomp($quoteBalance, $marketBuyCost['locked_balance'], 8) < 0) {
                     return ['success' => false, 'message' => 'Insufficient balance for market buy'];
                 }

@@ -21,10 +21,15 @@ class TradeConstants {
 
 
     //buffer
-    const MARKET_ORDER_BUFFER_RATE = 0.01;
+    const MARKET_ORDER_BUFFER_RATE = 1.01;
 
     // 固定汇率
     const RATE_BTC = 80000;
     const RATE_ETH = 2000;
+
+    const RATE_LIST = [
+        'btc' => 80000,
+        'eth' => 2000,
+    ];
 }
 

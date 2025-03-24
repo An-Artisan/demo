@@ -2,6 +2,7 @@
 
 namespace app\Services;
 
+use app\Constants\TradeConstants;
 use app\Models\AssetLedgerModel;
 use App\Models\OrderModel;
 use app\Models\TradingPairModel;
@@ -212,12 +213,13 @@ class OrderService
      * @author liuqiang
      * @email g1090035743@gmail.com
      */
-    public static function calculateMarketBuyCost( string $amount, string $bufferRate = '1.01'): array
+    public static function calculateMarketBuyCost( string $amount, $rate,string $bufferRate = '1.01'): array
     {
 
         // 计算 buffer：多预留出 bufferRate% 的资金来冻结，避免撮合失败
         // 例如：bufferRate = 1.01，表示加 1%
-        $buffer = bcmul($amount, bcsub($bufferRate, '1', 8), 8);
+        $marketBuyCost= bcmul($amount, $rate, 8);
+        $buffer = bcmul($marketBuyCost,  $bufferRate,8);
         return [
             'success' => true,
             'locked_balance' => $buffer,      // 实际需要冻结的资金

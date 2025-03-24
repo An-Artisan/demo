@@ -70,9 +70,9 @@ class OrderController extends BaseController
             'type' => $type,
             'side' => $side,
             'price' => $price,
-            'amount' => $amount
+            'amount' => $amount,
+            'lock_amount' => $checkResult['marketBuyCost']['locked_balance'],
         ];
-
         $OrderService = new OrderService();
         $order_id = $OrderService->createOrder($order,$checkResult);
 
