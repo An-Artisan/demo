@@ -52,7 +52,7 @@ class MatchingEngineService
         // 固定交易对列表：BTC_USDT 和 ETH_USDT
         $pairList = ['BTC_USDT', 'ETH_USDT'];
 
-        // 遍历每个交易对，并执行撮合逻辑
+        // 遍历每个交易对，并执行撮合逻辑 后续可拆解为单交易对单进程，避免各交易对之间相互影响
         foreach ($pairList as $pairId) {
             $this->matchOrders($pairId);
         }
