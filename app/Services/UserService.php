@@ -104,8 +104,6 @@ class UserService
                 }
                 $marketBuyCost = [
                     'locked_balance' => $totalCost,
-                    'cost' => $totalCost,
-                    'type' => 'limit_buy',
                     'currency' => $quote
                 ];
             } else {
@@ -114,8 +112,6 @@ class UserService
                 }
                 $marketBuyCost = [
                     'locked_balance' => $amount,
-                    'cost' => $amount,
-                    'type' => 'limit_sell',
                     'currency' => $base
                 ];
             }
@@ -130,25 +126,19 @@ class UserService
              * 这里如果无深度就拒绝下单，但是深度不够也可以下单，可以拆单。
              */
             if ($side == TradeConstants::SIDE_BUY) {
-                $marketBuyCost = OrderService::calculateMarketBuyCost($pairId, $amount, TradeConstants::MARKET_ORDER_BUFFER_RATE);
+                $marketBuyCost = OrderService::calculateMarketBuyCost($amount, TradeConstants::MARKET_ORDER_BUFFER_RATE);
                 if (!$marketBuyCost['success']) {
                     return ['success' => false, 'message' => $marketBuyCost['message'] ?? 'Error calculating cost'];
                 }
                 if (bccomp($quoteBalance, $marketBuyCost['locked_balance'], 8) < 0) {
                     return ['success' => false, 'message' => 'Insufficient balance for market buy'];
                 }
-                $marketBuyCost['type'] = 'market_buy';
                 $marketBuyCost['currency'] = $quote;
             } else {
-                //市价卖单不需要有buffer_rate 市价卖单的是按基础币种判断的
-                $marketBuyCost = OrderService::calculateMarketSellIncome($pairId, $amount);
-                if (!$marketBuyCost['success']) {
-                    return ['success' => false, 'message' => $marketBuyCost['message'] ?? 'Error calculating cost'];
-                }
-                if (bccomp($baseBalance, $marketBuyCost['locked_balance'], 8) < 0) {
+                if (bccomp($amount, $marketBuyCost['locked_balance'], 8) < 0) {
                     return ['success' => false, 'message' => 'Insufficient balance for market sell'];
                 }
-                $marketBuyCost['type'] = 'market_sell';
+                $marketBuyCost['locked_balance'] = $amount;
                 $marketBuyCost['currency'] = $base;
             }
         }
