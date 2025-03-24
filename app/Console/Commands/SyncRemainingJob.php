@@ -33,8 +33,9 @@ class SyncRemainingJob
             $assetLedgerModel = new AssetLedgerModel();
 
             // 查询所有完全成交的市场买单，且 lock_amount 不为空（仅针对买单 side=0，type=1）
-            $orders = $orderModel->find(["status = ? AND type = ? AND side = ? AND lock_amount IS NOT NULL",
+            $orders = $orderModel->find(["status IN (?,?) AND type = ? AND side = ? AND lock_amount IS NOT NULL",
                 TradeConstants::STATUS_FILLED,
+                TradeConstants::STATUS_CANCELED,
                 TradeConstants::TYPE_MARKET,
                 TradeConstants::SIDE_BUY
             ]);

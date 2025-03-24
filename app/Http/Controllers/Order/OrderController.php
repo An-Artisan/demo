@@ -113,6 +113,7 @@ class OrderController extends BaseController
             return;
         }
 
+
         if ($order->status == TradeConstants::STATUS_FILLED) {
             $this->error(400, 'Order already filled');
             return;
@@ -121,6 +122,9 @@ class OrderController extends BaseController
         // 取消订单
         $result = $OrderService->cancelOrder($orderId);
         if ($result) {
+            if ($order->side == TradeConstants::SIDE_BUY && $order->type == TradeConstants::TYPE_MARKET) {
+                $this->success([], 'Order cancelled successfully');
+            }
             // 计算订单剩余未成交数量
             $remaining = bcsub($order->amount, $order->filled_amount, 8);
 
@@ -131,16 +135,22 @@ class OrderController extends BaseController
                 return;
             }
 
-            // 判断订单类型，计算释放的锁定余额
-            if ($order->side == TradeConstants::SIDE_BUY) {
+            // 判断订单类型并且是限价，计算释放的锁定余额
+            if ($order->side == TradeConstants::SIDE_BUY && $order->type == TradeConstants::TYPE_LIMIT) {
                 // 买单锁定的是计价币（第二部分），释放金额 = 剩余数量 * 限价单价格
                 $currencyToRelease = $pairParts[1];
                 $releaseAmount = bcmul($remaining, $order->price, 8);
-            } else {
+            } else if ( $order->side == TradeConstants::SIDE_SELL && $order->type == TradeConstants::TYPE_LIMIT){
+                // 卖单锁定的是基础币（第一部分）
+                $currencyToRelease = $pairParts[0];
+                $releaseAmount = $remaining;
+            } else if ($order->side == TradeConstants::SIDE_SELL && $order->type == TradeConstants::TYPE_MARKET) {
                 // 卖单锁定的是基础币（第一部分）
                 $currencyToRelease = $pairParts[0];
                 $releaseAmount = $remaining;
             }
+
+
 
             // 调用用户模型方法释放锁定余额
             $UserModel = new UserModel();

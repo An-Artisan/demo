@@ -16,12 +16,14 @@ class AssetLedgerModel extends \DB\SQL\Mapper {
     }
 
     // 根据用户ID查找用户流水记录
-    public function findByUserId($userId) {
+    public function findByUserId($userId): array
+    {
         return $this->find(['user_id = ?', $userId]);
     }
 
     // 根据交易对ID查找交易记录
-    public function findByPairIdAndUserId($userId) {
+    public function findByPairIdAndUserId($userId): array
+    {
         return $this->find(['user_id = ?',$userId],['order' => 'created_at desc']);
     }
 
