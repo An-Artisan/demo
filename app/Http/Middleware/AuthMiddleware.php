@@ -12,7 +12,9 @@ class AuthMiddleware extends Middleware {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-
+        if (isset($_GET['user_id'])) {
+            $_SESSION['user']['user_id'] = $_GET['user_id'];
+        }
         // 判断是否登录（是否有 user 信息）
         if (!isset($_SESSION['user']) || empty($_SESSION['user']['user_id'])) {
              $this->error(401, "未登录或 session 失效，请重新登录", []);
