@@ -153,7 +153,6 @@ class UserModel extends \DB\SQL\Mapper {
     {
         $this->load(['user_id = ?', $userId]);
         $balance = json_decode($this->balance, true);
-
         if (!isset($balance['spot'])) $balance['spot'] = [];
 
         $found = false;

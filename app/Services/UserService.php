@@ -140,15 +140,16 @@ class UserService
                 $marketBuyCost['type'] = 'market_buy';
                 $marketBuyCost['currency'] = $quote;
             } else {
-                $marketBuyCost = OrderService::calculateMarketSellIncome($pairId, $amount, TradeConstants::MARKET_ORDER_BUFFER_RATE);
+                //市价卖单不需要有buffer_rate 市价卖单的是按基础币种判断的
+                $marketBuyCost = OrderService::calculateMarketSellIncome($pairId, $amount);
                 if (!$marketBuyCost['success']) {
                     return ['success' => false, 'message' => $marketBuyCost['message'] ?? 'Error calculating cost'];
                 }
-                if (bccomp($quoteBalance, $marketBuyCost['locked_balance'], 8) < 0) {
+                if (bccomp($baseBalance, $marketBuyCost['locked_balance'], 8) < 0) {
                     return ['success' => false, 'message' => 'Insufficient balance for market sell'];
                 }
-                $marketBuyCost['type'] = 'market_buy';
-                $marketBuyCost['currency'] = $quote;
+                $marketBuyCost['type'] = 'market_sell';
+                $marketBuyCost['currency'] = $base;
             }
         }
 

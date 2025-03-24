@@ -511,7 +511,7 @@ function placeOrder(side) {
     axios.post('http://localhost:8888/order/create-order', payload)
         .then(res => {
             if (res.data.code === 200) {
-                alert((side === 0 ? '买入' : '卖出') + '成功 ✅');
+                alert((side === 0 ? '下单' : '下单') + '成功 ✅');
                 // 刷新页面关键模块（不要整页刷新）
                 fetchCurrentOrders(pairId);
                 fetchAssetData(pairId);
