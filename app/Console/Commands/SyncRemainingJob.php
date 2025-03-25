@@ -21,7 +21,7 @@ class SyncRemainingJob
 
     public function handle()
     {
-        echo "这是默认的任务处理方法\n";
+        echo "回滚订单锁定余额任务开始执行...\n";
     }
 
     public function run()
