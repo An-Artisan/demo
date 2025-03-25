@@ -1,8 +1,19 @@
 <?php
+
 namespace lib\schedule;
 
 
-class ScheduledTask {
+/**
+ *  ScheduledTask 类，用于定义定时任务
+ * Class ScheduledTask
+ * @package lib\schedule
+ *
+ * @copyright Copyright (c) 2018-2025 artisan
+ * @license g1090035743@gmail.com
+ * @version 1.0
+ */
+class ScheduledTask
+{
     // 要执行的命令类名，例如 TestJob
     protected $job;
 
@@ -14,10 +25,11 @@ class ScheduledTask {
 
     /**
      * 构造函数，设置任务的类名和方法名
-     * @param string $job  任务类名（不带命名空间）
+     * @param string $job 任务类名（不带命名空间）
      * @param string $method 要执行的方法名，默认为 handle
      */
-    public function __construct(string $job, string $method = 'handle') {
+    public function __construct(string $job, string $method = 'handle')
+    {
         $this->job = $job;
         $this->method = $method;
     }
@@ -46,7 +58,8 @@ class ScheduledTask {
      * 判断当前时间是否符合任务执行条件
      * 返回 true 表示应该立即执行任务
      */
-    public function shouldRunNow(): bool {
+    public function shouldRunNow(): bool
+    {
         // 当前时间（格式：HH:mm）
         $now = date('H:i');
 
@@ -69,7 +82,8 @@ class ScheduledTask {
     /**
      * 实际执行任务：实例化命令类并调用指定方法
      */
-    public function run() {
+    public function run()
+    {
         // 拼接完整类名，例如 app\Console\Commands\TestJob
         $class = "app\\Console\\Commands\\{$this->job}";
 

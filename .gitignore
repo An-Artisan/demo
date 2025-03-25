@@ -2,3 +2,4 @@
 /.idea/
 .env
 /storage/logs/*
+/storage/cache/*
