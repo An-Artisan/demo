@@ -93,7 +93,7 @@ class CoinsController extends BaseController
     }
 
     //获取单个币种的成交数据接口
-    public function getCurrencyTrade($f3)
+    public function getCurrencyTrade($f3,$params)
     {
         $client = new GateClient();
         // 获取单个币种的成交数据

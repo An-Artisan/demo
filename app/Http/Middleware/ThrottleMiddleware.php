@@ -18,8 +18,8 @@ class ThrottleMiddleware extends Middleware {
         // 读取现有的缓存数据
         $data = file_exists($cacheFile) ? json_decode(file_get_contents($cacheFile), true) : ['count' => 0, 'timestamp' => time()];
 
-        // 如果时间间隔超过 60 秒，重置计数
-        if ($data['timestamp'] + 60 < time()) {
+        // 如果时间间隔超过 1 秒，重置计数
+        if ($data['timestamp'] + 1 < time()) {
             $data['count'] = 0;
             $data['timestamp'] = time();
         }
@@ -27,7 +27,7 @@ class ThrottleMiddleware extends Middleware {
         // 递增请求计数
         $data['count']++;
 
-        if ($data['count'] > 3) { // 限制每分钟 3 次请求
+        if ($data['count'] > 1) { // 限制每秒 1 次请求
             logger()->write("请求过于频繁，请稍后再试", 'waring');
 
             $this->error(429,"请求过于频繁，请稍后再试",[]);

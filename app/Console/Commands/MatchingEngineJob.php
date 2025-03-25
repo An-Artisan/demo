@@ -35,7 +35,7 @@ class MatchingEngineJob
             } catch (\Exception $e) {
                 logger()->write("撮合发生异常：" . $e->getMessage(), 'error');
                 // 视业务需求决定是否 break 或继续循环
-                break;
+//                break;
             }
 
             // 可以根据业务需求调整休眠时长

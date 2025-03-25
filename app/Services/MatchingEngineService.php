@@ -269,12 +269,14 @@ class MatchingEngineService
 
         // 买家：释放锁定的计价币并增加基础币
         $userModel->releaseLockedBalance($buyerId, $quote, $quoteTotal);
+        logger()->write("买家释放锁定的计价币：{$quote},数量{$quoteTotal}", 'info');
         $userModel->increaseAvailableBalance($buyerId, $base, $amount);
-
+        logger()->write("买家增加可用基础币：{$base},数量{$amount}", 'info');
         // 卖家：释放锁定的基础币并增加计价币
         $userModel->releaseLockedBalance($sellerId, $base, $amount);
+        logger()->write("卖家释放锁定的基础币：{$base},数量{$amount}", 'info');
         $userModel->increaseAvailableBalance($sellerId, $quote, $quoteTotal);
-
+        logger()->write("卖家增加可用计价币：{$quote},数量{$quoteTotal}", 'info');
         // 写入资产流水记录
         $assetLedgerModel->createLedger($buyerId, $quote, $negQuote, 2, $buyOrderId);
         $assetLedgerModel->createLedger($buyerId, $base, $amount, 2, $buyOrderId);

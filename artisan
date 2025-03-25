@@ -7,7 +7,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 // 加载辅助函数
 require_once __DIR__ . '/helpers/helpers.php';
 
-// 注册核心服务（包括 F3、env、config、db、logger）
+// 注册核心服务（包括 F3、env、config、db、logger） web和cli都同时支持
 require_once __DIR__ . '/lib/bootstrap/services.php';
 
 use app\Console\Kernel;

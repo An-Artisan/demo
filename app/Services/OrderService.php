@@ -2,10 +2,8 @@
 
 namespace app\Services;
 
-use app\Constants\TradeConstants;
 use app\Models\AssetLedgerModel;
 use App\Models\OrderModel;
-use app\Models\TradingPairModel;
 use app\Models\UserModel;
 
 
@@ -30,10 +28,8 @@ class OrderService
             logger()->write("Empty data passed to createOrder()", 'error');
             return false;
         }
-
+        $this->db->begin();
         try {
-            $this->db->begin();
-
             // 创建订单
             $orderId = $this->OrderModel->createOrder($order);
             if (!$orderId) {

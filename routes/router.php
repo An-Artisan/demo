@@ -83,7 +83,7 @@ $f3->route('GET /coins/get-index-data', 'app\Http\Controllers\Coins\CoinsControl
 
 //  订单模块（建议保护订单操作）
 $f3->route('POST /order/create-order', function($f3, $params) {
-    Middleware::run([AuthMiddleware::class], 'app\Http\Controllers\Order\OrderController->createOrder', [$f3, $params]);
+    Middleware::run([AuthMiddleware::class,ThrottleMiddleware::class], 'app\Http\Controllers\Order\OrderController->createOrder', [$f3, $params]);
 }); // 下单
 
 $f3->route('POST /order/cancel-order', function($f3, $params) {
