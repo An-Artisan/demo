@@ -19,7 +19,7 @@ class ThrottleMiddleware extends Middleware {
         $data = file_exists($cacheFile) ? json_decode(file_get_contents($cacheFile), true) : ['count' => 0, 'timestamp' => time()];
 
         // 如果时间间隔超过 1 秒，重置计数
-        if ($data['timestamp'] + 1 < time()) {
+        if ($data['timestamp'] + 2 < time()) {
             $data['count'] = 0;
             $data['timestamp'] = time();
         }
